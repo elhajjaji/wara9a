@@ -6,7 +6,7 @@
 
 > Open-source Python framework for intelligent automated documentation
 
-**Wara<u>9</u>a** (وَرَقَة - "sheet" in Arabic) automatically transforms your IT projects into clear and professional documentation. Configure once, document forever.
+**Wara<u>9</u>a** automatically transforms your IT projects into clear and professional documentation. Configure once, document forever.
 
 ## 🚀 Installation
 
