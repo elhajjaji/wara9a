@@ -73,7 +73,7 @@ def init(name: str, project_dir: Optional[str], github_repo: Optional[str],
     """
     🚀 Initialise un nouveau projet Wara9a
     
-    Crée la structure de base et le fichier de configuration wara9a.yml.
+    Creates basic structure and wara9a.yml configuration file.
     """
     try:
         target_dir = Path(project_dir) if project_dir else Path.cwd()
@@ -85,7 +85,7 @@ def init(name: str, project_dir: Optional[str], github_repo: Optional[str],
             console.print("Use --force to overwrite or 'wara9a generate' to generate documentation.")
             return
         
-        console.print(f"📁 Création du projet dans: {target_dir}")
+        console.print(f"📁 Creating project in: {target_dir}")
         
         with Progress(
             SpinnerColumn(),
@@ -118,19 +118,19 @@ def init(name: str, project_dir: Optional[str], github_repo: Optional[str],
         
         # Display result
         panel = Panel.fit(
-            f"""✅ Projet Wara9a créé avec succès !
+            f"""✅ Wara9a project created successfully!
 
 📄 Configuration: {config_file}
 📂 Sortie: {output_path}
-🔧 Sources: {len(config.sources)} configurée(s)
+🔧 Sources: {len(config.sources)} configured
 📝 Templates: {len(config.templates)} disponible(s)
 
-Pour générer la documentation:
+To generate documentation:
   [bold cyan]wara9a generate[/bold cyan]
 
 Pour voir la configuration:
   [bold cyan]wara9a config show[/bold cyan]""",
-            title="🎉 Initialisation terminée",
+            title="🎉 Initialization completed",
             border_style="green"
         )
         console.print(panel)
@@ -156,10 +156,10 @@ Pour voir la configuration:
 def generate(config: Optional[str], output: Optional[str], templates: List[str], 
             force_refresh: bool, clean: bool, preview: bool) -> None:
     """
-    📝 Génère la documentation du projet
+    📝 Generates project documentation
     
-    Collecte les données depuis les sources configurées et génère
-    tous les documents selon les templates définis.
+    Collects data from configured sources and generates
+    all documents according to defined templates.
     """
     try:
         # Load project
@@ -171,25 +171,25 @@ def generate(config: Optional[str], output: Optional[str], templates: List[str],
         if preview:
             preview_data = generator.preview_generation()
             
-            table = Table(title="🔍 Prévisualisation de la génération")
-            table.add_column("Élément", style="cyan")
-            table.add_column("Valeur", style="green")
+            table = Table(title="🔍 Generation preview")
+            table.add_column("Item", style="cyan")
+            table.add_column("Value", style="green")
             
             table.add_row("Projet", preview_data["project_name"])
-            table.add_row("Dossier de sortie", preview_data["output_directory"])
+            table.add_row("Output directory", preview_data["output_directory"])
             table.add_row("Formats", ", ".join(preview_data["output_formats"]))
             table.add_row("Sources", str(len(preview_data["sources"])))
             table.add_row("Templates", str(len(preview_data["templates"])))
-            table.add_row("Fichiers estimés", str(preview_data["estimated_files"]))
+            table.add_row("Estimated files", str(preview_data["estimated_files"]))
             
             console.print(table)
             
             # Source details
             if preview_data["sources"]:
-                sources_table = Table(title="Sources de données")
+                sources_table = Table(title="Data sources")
                 sources_table.add_column("Type", style="blue")
-                sources_table.add_column("Nom", style="yellow")
-                sources_table.add_column("Activée", style="green")
+                sources_table.add_column("Name", style="yellow")
+                sources_table.add_column("Enabled", style="green")
                 
                 for source in preview_data["sources"]:
                     sources_table.add_row(
@@ -212,7 +212,7 @@ def generate(config: Optional[str], output: Optional[str], templates: List[str],
             TextColumn("[progress.description]{task.description}"),
             console=console
         ) as progress:
-            task = progress.add_task("Génération en cours...", total=None)
+            task = progress.add_task("Generating...", total=None)
             
             if templates:
                 # Specific template generation
@@ -236,17 +236,17 @@ def generate(config: Optional[str], output: Optional[str], templates: List[str],
         duration_str = f"{stats['duration']:.1f}s" if stats else 'N/A'
         
         result_panel = Panel.fit(
-            f"""✅ Génération terminée avec succès !
+            f"""✅ Generation completed successfully!
 
-📄 Fichiers générés: {len(generated_files)}
-⏱️  Durée: {duration_str}
-📊 Données traitées:
+📄 Generated files: {len(generated_files)}
+⏱️  Duration: {duration_str}
+📊 Data processed:
   • {stats['commits_processed'] if stats else 0} commits
   • {stats['issues_processed'] if stats else 0} issues  
   • {stats['prs_processed'] if stats else 0} pull requests
 
-📂 Fichiers créés:""",
-            title="🎉 Génération terminée",
+📂 Files created:""",
+            title="🎉 Generation completed",
             border_style="green"
         )
         console.print(result_panel)
@@ -255,12 +255,12 @@ def generate(config: Optional[str], output: Optional[str], templates: List[str],
             console.print(f"  📄 {file_path}")
         
     except FileNotFoundError:
-        console.print("❌ Fichier wara9a.yml non trouvé")
-        console.print("Utilisez '[bold cyan]wara9a init[/bold cyan]' pour créer un nouveau projet.")
+        console.print("❌ wara9a.yml file not found")
+        console.print("Use '[bold cyan]wara9a init[/bold cyan]' to create a new project.")
         sys.exit(1)
     except Exception as e:
-        console.print(f"❌ Erreur lors de la génération: {e}")
-        logging.exception("Détails de l'erreur")
+        console.print(f"❌ Generation error: {e}")
+        logging.exception("Error details")
         sys.exit(1)
 
 
@@ -276,7 +276,7 @@ def config() -> None:
 
 @config.command('show')
 @click.option('--config', '-c', type=click.Path(exists=True), 
-              help='Fichier de configuration (défaut: wara9a.yml)')
+              help='Configuration file (default: wara9a.yml)')
 def config_show(config: Optional[str]) -> None:
     """Affiche la configuration actuelle"""
     try:
@@ -286,26 +286,26 @@ def config_show(config: Optional[str]) -> None:
         # Main table
         table = Table(title="⚙️ Configuration Wara9a")
         table.add_column("Section", style="cyan")
-        table.add_column("Valeur", style="green")
+        table.add_column("Value", style="green")
         
         # Project information
         proj_config = project.config.project
-        table.add_row("Nom", proj_config.name)
+        table.add_row("Name", proj_config.name)
         table.add_row("Version", proj_config.version or "Not defined")
         table.add_row("Description", proj_config.description or "Not defined")
         
         # Output configuration
         output_config = project.config.output
-        table.add_row("Dossier de sortie", output_config.directory)
+        table.add_row("Output directory", output_config.directory)
         table.add_row("Formats", ", ".join(output_config.formats))
         
         console.print(table)
         
         # Sources
-        sources_table = Table(title="📡 Sources de données")
+        sources_table = Table(title="📡 Data sources")
         sources_table.add_column("Type", style="blue")
-        sources_table.add_column("Nom", style="yellow")
-        sources_table.add_column("Activée", style="green")
+        sources_table.add_column("Name", style="yellow")
+        sources_table.add_column("Enabled", style="green")
         
         for source in project.config.sources:
             sources_table.add_row(
@@ -318,10 +318,10 @@ def config_show(config: Optional[str]) -> None:
         
         # Templates
         templates_table = Table(title="📝 Templates")
-        templates_table.add_column("Nom", style="magenta")
+        templates_table.add_column("Name", style="magenta")
         templates_table.add_column("Sortie", style="cyan")
-        templates_table.add_column("Personnalisé", style="yellow")
-        templates_table.add_column("Activé", style="green")
+        templates_table.add_column("Custom", style="yellow")
+        templates_table.add_column("Enabled", style="green")
         
         for template in project.config.templates:
             templates_table.add_row(
@@ -340,7 +340,7 @@ def config_show(config: Optional[str]) -> None:
 
 @config.command('validate')
 @click.option('--config', '-c', type=click.Path(exists=True), 
-              help='Fichier de configuration (défaut: wara9a.yml)')
+              help='Configuration file (default: wara9a.yml)')
 def config_validate(config: Optional[str]) -> None:
     """Valide la configuration"""
     try:
@@ -371,12 +371,12 @@ def config_validate(config: Optional[str]) -> None:
 
 @main.command()
 @click.option('--config', '-c', type=click.Path(exists=True), 
-              help='Fichier de configuration (défaut: wara9a.yml)')
+              help='Configuration file (default: wara9a.yml)')
 def connectors(config: Optional[str]) -> None:
     """
     🔌 Liste les connecteurs disponibles
     
-    Affiche tous les connecteurs installés et leur statut.
+    Display all installed connectors and their status.
     """
     try:
         # Charger le projet si config fournie, sinon juste le registre
@@ -391,7 +391,7 @@ def connectors(config: Optional[str]) -> None:
         
         table = Table(title="🔌 Connecteurs disponibles")
         table.add_column("Type", style="blue")
-        table.add_column("Nom", style="green")
+        table.add_column("Name", style="green")
         table.add_column("Description", style="cyan")
         
         for connector in connectors_list:
@@ -404,7 +404,7 @@ def connectors(config: Optional[str]) -> None:
         console.print(table)
         
         if not connectors_list:
-            console.print("⚠️  Aucun connecteur trouvé")
+            console.print("⚠️  No connector found")
         
     except Exception as e:
         console.print(f"❌ Erreur lors de la liste des connecteurs: {e}")
@@ -416,7 +416,7 @@ def templates() -> None:
     """
     📝 Liste les templates disponibles
     
-    Affiche tous les templates intégrés disponibles.
+    Display all available built-in templates.
     """
     from wara9a.core.template_engine import TemplateEngine
     
@@ -424,20 +424,20 @@ def templates() -> None:
         engine = TemplateEngine()
         builtin_templates = engine.list_builtin_templates()
         
-        table = Table(title="📝 Templates intégrés")
-        table.add_column("Nom", style="magenta")
+        table = Table(title="📝 Built-in templates")
+        table.add_column("Name", style="magenta")
         table.add_column("Description", style="cyan")
         
         descriptions = {
-            "readme": "Documentation générale du projet",
+            "readme": "General project documentation",
             "changelog": "Journal des modifications",
-            "release_notes": "Notes de version détaillées"
+            "release_notes": "Detailed release notes"
         }
         
         for template_name in builtin_templates:
             table.add_row(
                 template_name,
-                descriptions.get(template_name, "Template personnalisé")
+                descriptions.get(template_name, "Custom template")
             )
         
         console.print(table)
@@ -449,46 +449,46 @@ def templates() -> None:
 @main.group()
 def deps() -> None:
     """
-    📦 Gestion des dépendances
+    📦 Dependencies management
     
-    Commandes pour vérifier et installer les dépendances nécessaires
-    selon les connecteurs utilisés dans la configuration.
+    Commands to check and install required dependencies
+    according to connectors used in configuration.
     """
     pass
 
 
 @deps.command('check')
 @click.option('--config', '-c', type=click.Path(exists=True), 
-              help='Fichier de configuration (défaut: wara9a.yml)')
-@click.option('--verbose', '-v', is_flag=True, help='Affichage détaillé')
+              help='Configuration file (default: wara9a.yml)')
+@click.option('--verbose', '-v', is_flag=True, help='Verbose output')
 def deps_check(config: Optional[str], verbose: bool) -> None:
-    """Vérifie les dépendances nécessaires"""
+    """Check required dependencies"""
     try:
         config_path = Path(config) if config else Path.cwd() / "wara9a.yml"
         
         if not config_path.exists():
-            console.print(f"❌ Fichier de configuration non trouvé: {config_path}")
-            console.print("Utilisez '[bold cyan]wara9a init[/bold cyan]' pour créer un projet.")
+            console.print(f"❌ Configuration file not found: {config_path}")
+            console.print("Use '[bold cyan]wara9a init[/bold cyan]' to create a project.")
             return
         
         report = DependencyManager.check_project_dependencies(config_path)
         
         if report["status"] == "ok":
-            console.print("✅ Toutes les dépendances sont installées !")
+            console.print("✅ All dependencies are installed!")
             
         elif report["status"] == "missing_deps":
             missing = report["missing"]
             
-            console.print("⚠️ Dépendances manquantes détectées:")
+            console.print("⚠️ Missing dependencies detected:")
             
             if missing["connectors"]:
                 console.print(f"🔌 Connecteurs: [red]{', '.join(missing['connectors'])}[/red]")
             
             if missing["generators"]:
-                console.print(f"📄 Générateurs: [red]{', '.join(missing['generators'])}[/red]")
+                console.print(f"📄 Generators: [red]{', '.join(missing['generators'])}[/red]")
             
             if verbose and missing["packages"]:
-                console.print(f"\n📦 Packages nécessaires:")
+                console.print(f"\n📦 Required packages:")
                 for package in missing["packages"]:
                     console.print(f"  • {package}")
             
@@ -503,24 +503,24 @@ def deps_check(config: Optional[str], verbose: bool) -> None:
             console.print(f"❌ Erreur: {report.get('message', 'Erreur inconnue')}")
             
     except Exception as e:
-        console.print(f"❌ Erreur lors de la vérification des dépendances: {e}")
+        console.print(f"❌ Dependencies check error: {e}")
         sys.exit(1)
 
 
 @deps.command('install')
 @click.option('--config', '-c', type=click.Path(exists=True), 
-              help='Fichier de configuration (défaut: wara9a.yml)')
+              help='Configuration file (default: wara9a.yml)')
 @click.option('--dry-run', '-n', is_flag=True, 
-              help='Simulation sans installation réelle')
+              help='Simulation without actual installation')
 @click.option('--force', '-f', is_flag=True,
-              help='Forcer la réinstallation')
+              help='Force reinstallation')
 def deps_install(config: Optional[str], dry_run: bool, force: bool) -> None:
-    """Installe automatiquement les dépendances manquantes"""
+    """Automatically install missing dependencies"""
     try:
         config_path = Path(config) if config else Path.cwd() / "wara9a.yml"
         
         if not config_path.exists():
-            console.print(f"❌ Fichier de configuration non trouvé: {config_path}")
+            console.print(f"❌ Configuration file not found: {config_path}")
             return
         
         from wara9a.core.config import Wara9aConfig
@@ -529,7 +529,7 @@ def deps_install(config: Optional[str], dry_run: bool, force: bool) -> None:
         manager = DependencyManager(auto_install=True, dry_run=dry_run)
         
         if dry_run:
-            console.print("🔄 Mode simulation activé")
+            console.print("🔄 Simulation mode activated")
         
         with Progress(
             SpinnerColumn(),
@@ -537,18 +537,18 @@ def deps_install(config: Optional[str], dry_run: bool, force: bool) -> None:
             console=console
         ) as progress:
             if not dry_run:
-                task = progress.add_task("Installation des dépendances...", total=None)
+                task = progress.add_task("Installing dependencies...", total=None)
             
             success = manager.auto_install_dependencies(wara9a_config)
         
         if success:
             if dry_run:
-                console.print("✅ Simulation terminée - voir les logs ci-dessus")
+                console.print("✅ Simulation completed - see logs above")
             else:
-                console.print("✅ Dépendances installées avec succès !")
+                console.print("✅ Dependencies installed successfully!")
                 console.print("Vous pouvez maintenant utiliser '[bold cyan]wara9a generate[/bold cyan]'")
         else:
-            console.print("❌ Échec de l'installation des dépendances")
+            console.print("❌ Dependencies installation failed")
             
             # Afficher les suggestions manuelles
             missing = manager.check_config_dependencies(wara9a_config)
@@ -567,10 +567,10 @@ def deps_install(config: Optional[str], dry_run: bool, force: bool) -> None:
 
 @deps.command('list')
 def deps_list() -> None:
-    """Liste tous les connecteurs et leurs dépendances"""
+    """List all connectors and their dependencies"""
     
-    table = Table(title="📦 Connecteurs et dépendances")
-    table.add_column("Connecteur", style="blue")
+    table = Table(title="📦 Connectors and dependencies")
+    table.add_column("Connector", style="blue")
     table.add_column("Packages", style="green") 
     table.add_column("Groupe optionnel", style="yellow")
     table.add_column("Disponible", style="magenta")
@@ -591,8 +591,8 @@ def deps_list() -> None:
     console.print(table)
     
     # Generators table
-    gen_table = Table(title="📄 Générateurs et dépendances")
-    gen_table.add_column("Générateur", style="blue")
+    gen_table = Table(title="📄 Generators and dependencies")
+    gen_table.add_column("Generator", style="blue")
     gen_table.add_column("Packages", style="green")
     gen_table.add_column("Groupe optionnel", style="yellow")
     gen_table.add_column("Disponible", style="magenta")

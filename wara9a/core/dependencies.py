@@ -139,37 +139,37 @@ class DependencyManager:
             logger.info("✅ All dependencies are already installed")
             return True
         
-        logger.info("🔍 Dépendances manquantes détectées:")
+        logger.info("🔍 Missing dependencies detected:")
         if missing["connectors"]:
             logger.info(f"  • Connecteurs: {', '.join(missing['connectors'])}")
         if missing["generators"]: 
-            logger.info(f"  • Générateurs: {', '.join(missing['generators'])}")
+            logger.info(f"  • Generators: {', '.join(missing['generators'])}")
         
         if not self.auto_install:
-            logger.warning("⚠️ Installation automatique désactivée")
+            logger.warning("⚠️ Automatic installation disabled")
             return False
         
         if self.dry_run:
-            logger.info("🔄 Mode simulation - packages à installer:")
+            logger.info("🔄 Simulation mode - packages to install:")
             for package in missing["packages"]:
                 logger.info(f"  • {package}")
             return True
         
         # Installation des packages
-        logger.info("📦 Installation des dépendances manquantes...")
+        logger.info("📦 Installing missing dependencies...")
         success = self._install_packages(missing["packages"])
         
         if success:
-            logger.info("✅ Dépendances installées avec succès")
+            logger.info("✅ Dependencies installed successfully")
             # Check again
             missing_after = self.check_config_dependencies(config)
             return not any(missing_after.values())
         else:
-            logger.error("❌ Échec de l'installation des dépendances")
+            logger.error("❌ Dependencies installation failed")
             return False
     
     def _check_import(self, module_name: str) -> bool:
-        """Vérifie si un module peut être importé."""
+        """Checks if a module can be imported."""
         try:
             spec = importlib.util.find_spec(module_name)
             return spec is not None
@@ -181,17 +181,17 @@ class DependencyManager:
         Installe une liste de packages avec pip.
         
         Args:
-            packages: Liste des packages à installer
+            packages: List of packages to install
             
         Returns:
-            True si l'installation réussit
+            True if installation succeeds
         """
         if not packages:
             return True
         
         try:
             cmd = [sys.executable, "-m", "pip", "install"] + packages
-            logger.info(f"Exécution: {' '.join(cmd)}")
+            logger.info(f"Executing: {' '.join(cmd)}")
             
             result = subprocess.run(
                 cmd,
@@ -201,7 +201,7 @@ class DependencyManager:
             )
             
             if result.returncode == 0:
-                logger.info("📦 Installation terminée avec succès")
+                logger.info("📦 Installation completed successfully")
                 if result.stdout:
                     logger.debug(f"Sortie pip: {result.stdout}")
                 return True
@@ -220,13 +220,13 @@ class DependencyManager:
     
     def suggest_manual_install(self, config: Wara9aConfig) -> List[str]:
         """
-        Génère des suggestions d'installation manuelle.
+        Generate manual installation suggestions.
         
         Args:
             config: Configuration Wara9a
             
         Returns:
-            Liste des commandes d'installation suggérées
+            List of suggested installation commands
         """
         missing = self.check_config_dependencies(config)
         suggestions = []
@@ -262,13 +262,13 @@ class DependencyManager:
     @classmethod
     def check_project_dependencies(cls, config_path: Optional[Path] = None) -> Dict[str, any]:
         """
-        Vérifie les dépendances d'un projet Wara9a.
+        Check dependencies for a Wara9a project.
         
         Args:
-            config_path: Chemin vers wara9a.yml (défaut: cherche automatiquement)
+            config_path: Path to wara9a.yml (default: search automatically)
             
         Returns:
-            Rapport des dépendances
+            Dependencies report
         """
         try:
             if config_path is None:
@@ -277,7 +277,7 @@ class DependencyManager:
             if not config_path.exists():
                 return {
                     "status": "no_config",
-                    "message": f"Fichier de configuration non trouvé: {config_path}"
+                    "message": f"Configuration file not found: {config_path}"
                 }
             
             config = Wara9aConfig.load_from_file(config_path)
@@ -294,7 +294,7 @@ class DependencyManager:
         except Exception as e:
             return {
                 "status": "error", 
-                "message": f"Erreur lors de la vérification: {e}"
+                "message": f"Verification error: {e}"
             }
 
 
@@ -302,12 +302,12 @@ def auto_check_and_install(config: Optional[Wara9aConfig] = None,
                           config_path: Optional[Path] = None,
                           auto_install: bool = True) -> bool:
     """
-    Fonction utilitaire pour vérifier et installer automatiquement les dépendances.
+    Utility function to check and automatically install dependencies.
     
     Args:
         config: Configuration Wara9a (optionnel)
         config_path: Chemin vers wara9a.yml (optionnel)
-        auto_install: Installer automatiquement les dépendances manquantes
+        auto_install: Automatically install missing dependencies
         
     Returns:
         True if all dependencies are satisfied
@@ -317,7 +317,7 @@ def auto_check_and_install(config: Optional[Wara9aConfig] = None,
             config_path = Path.cwd() / "wara9a.yml"
         
         if not config_path.exists():
-            logger.warning(f"Fichier de configuration non trouvé: {config_path}")
+            logger.warning(f"Configuration file not found: {config_path}")
             return True  # No config = no special dependencies
         
         config = Wara9aConfig.load_from_file(config_path)
