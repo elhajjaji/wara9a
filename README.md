@@ -10,15 +10,29 @@
 
 ## 🚀 Installation
 
+### From PyPI (coming soon)
 ```bash
 # Basic installation (recommended)
 pip install wara9a
 
-# Connector dependencies are automatically installed
-# based on your wara9a.yml configuration
-
-# Or full installation if you prefer
+# Or full installation with all connectors
 pip install wara9a[all]
+```
+
+### From Source
+```bash
+# Clone the repository
+git clone https://github.com/elhajjaji/wara9a.git
+cd wara9a
+
+# Basic installation
+pip install -r requirements.txt
+
+# Development installation
+pip install -r requirements-dev.txt
+
+# Full installation (all connectors and generators)
+pip install -r requirements-full.txt
 ```
 
 ## ⚡ Quick Start
@@ -32,6 +46,31 @@ wara9a init
 # 3. Generate documentation
 wara9a generate
 ```
+
+## 🛠️ Development
+
+### Cross-platform development commands:
+
+```bash
+# Windows
+scripts\dev.bat [command]
+
+# Unix/Linux/macOS  
+./scripts/dev.sh [command]
+
+# Or use Python directly (works everywhere)
+python scripts/dev.py [command]
+```
+
+### Available commands:
+- `install` - Install basic dependencies
+- `install-dev` - Setup development environment
+- `test` - Run tests
+- `format` - Format code (black + isort)
+- `lint` - Run linting (flake8 + mypy)
+- `demo` - Run demo script
+- `clean` - Clean build artifacts
+- `check` - Run all quality checks
 
 ## 📁 Example Configuration
 

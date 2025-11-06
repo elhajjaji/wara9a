@@ -62,9 +62,17 @@ generators-pdf = [
 generators-advanced = [
     "markdown>=3.5.0",
     "python-docx>=0.8.11",
+    "python-markdown-math>=0.8",
 ]
 all = [
-    "wara9a[dev,connectors-github,connectors-jira,connectors-azure,generators-pdf,generators-advanced]",
+    "pygithub>=1.58.0",
+    "jira>=3.4.0", 
+    "azure-devops>=7.0.0",
+    "reportlab>=4.0.0",
+    "weasyprint>=59.0",
+    "markdown>=3.5.0",
+    "python-docx>=0.8.11",
+    "python-markdown-math>=0.8",
 ]
 
 [project.urls]
@@ -75,6 +83,7 @@ Issues = "https://github.com/elhajjaji/wara9a/issues"
 
 [project.scripts]
 wara9a = "wara9a.cli.main:main"
+wara9a-dev = "scripts.tasks:main"
 
 [tool.black]
 line-length = 88

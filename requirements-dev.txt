@@ -1,0 +1,16 @@
+# Development dependencies for Wara9a
+# Include base requirements
+-r requirements.txt
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Code formatting and linting
+black>=22.0.0
+isort>=5.10.0
+flake8>=5.0.0
+mypy>=1.0.0
+
+# Git hooks
+pre-commit>=2.20.0
