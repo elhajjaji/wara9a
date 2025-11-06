@@ -1,8 +1,8 @@
 """
 Registre des connecteurs Wara9a.
 
-Gère l'enregistrement, la découverte et l'instanciation des connecteurs.
-Supporte les connecteurs intégrés et les plugins tiers.
+Manages registration, discovery and instantiation of connectors.
+Supports built-in connectors and third-party plugins.
 """
 
 import logging
@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 
 class ConnectorRegistry:
     """
-    Registre centralisé des connecteurs disponibles.
+    Centralized registry of available connectors.
     
-    Permet l'enregistrement automatique des connecteurs intégrés
+    Allows automatic registration of built-in connectors
     et le chargement dynamique de connecteurs tiers via des plugins.
     """
     
@@ -37,10 +37,10 @@ class ConnectorRegistry:
         Enregistre un nouveau connecteur.
         
         Args:
-            connector_class: Classe du connecteur à enregistrer
+            connector_class: Connector class to register
             
         Raises:
-            ValueError: Si le connecteur est déjà enregistré ou invalide
+            ValueError: If connector is already registered or invalid
         """
         if not issubclass(connector_class, ConnectorBase):
             raise ValueError(f"{connector_class} doit hériter de ConnectorBase")

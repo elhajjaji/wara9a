@@ -79,9 +79,9 @@ class HTMLGenerator(GeneratorBase):
     
     def _simple_markdown_to_html(self, content: str) -> str:
         """
-        Conversion Markdown -> HTML très basique.
+        Very basic Markdown -> HTML conversion.
         
-        Gère seulement les éléments les plus courants.
+        Handles only the most common elements.
         """
         import re
         
@@ -136,7 +136,7 @@ class HTMLGenerator(GeneratorBase):
         
         Args:
             html_content: Contenu HTML converti
-            context: Contexte pour les métadonnées
+            context: Context for metadata
             
         Returns:
             HTML complet avec structure et CSS
@@ -175,9 +175,9 @@ class HTMLGenerator(GeneratorBase):
     
     def _get_default_css(self) -> str:
         """
-        Retourne le CSS par défaut pour les documents HTML.
+        Returns default CSS for HTML documents.
         
-        Un thème simple et professionnel inspiré de GitHub.
+        A simple, professional theme inspired by GitHub.
         """
         return """
         * {

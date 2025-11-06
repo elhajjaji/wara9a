@@ -45,7 +45,7 @@ dev = [
     "mypy>=1.0.0",
     "pre-commit>=2.20.0",
 ]
-# Connecteurs optionnels - installés automatiquement selon la config
+# Optional connectors - installed automatically based on config
 connectors-github = [
     "pygithub>=1.58.0",
 ]

@@ -1,6 +1,6 @@
 # 📄 Wara<u>9</u>a - Documentation IT Automatique et Intelligente
 
-**Wara<u>9</u>a** (وَرَقَة - "sheet" in Arabic) is an open-source Python framework that automatically transforms your IT projects into clear and professional documentation. Configure once, document forever.
+**Wara<u>9</u>a** is an open-source Python framework that automatically transforms your IT projects into clear and professional documentation. Configure once, document forever.
 
 ## 🎯 Philosophy
 

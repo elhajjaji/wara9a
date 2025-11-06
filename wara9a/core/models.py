@@ -134,17 +134,17 @@ class Repository(BaseModel):
     full_name: str = Field(description="Nom complet (org/repo)")
     description: Optional[str] = Field(default=None, description="Description")
     url: Optional[str] = Field(default=None, description="URL du repository")
-    default_branch: str = Field(default="main", description="Branche par défaut")
+    default_branch: str = Field(default="main", description="Default branch")
     languages: List[str] = Field(default_factory=list, description="Langages de programmation")
     topics: List[str] = Field(default_factory=list, description="Topics/tags")
     created_at: Optional[datetime] = Field(default=None, description="Creation date")
-    updated_at: Optional[datetime] = Field(default=None, description="Dernière mise à jour")
-    stars_count: int = Field(default=0, description="Nombre d'étoiles")
+    updated_at: Optional[datetime] = Field(default=None, description="Last update")
+    stars_count: int = Field(default=0, description="Number of stars")
     forks_count: int = Field(default=0, description="Nombre de forks")
 
 
 class ProjectData(BaseModel):
-    """Données normalisées d'un projet, collectées par tous les connecteurs."""
+    """Normalized project data, collected by all connectors."""
     model_config = ConfigDict(extra="allow")
     
     repository: Repository = Field(description="Informations du repository")
@@ -159,14 +159,14 @@ class ProjectData(BaseModel):
     source_config: Dict[str, Any] = Field(default_factory=dict, description="Config du connecteur")
     
     def get_latest_release(self) -> Optional[Release]:
-        """Retourne la dernière release publiée."""
+        """Returns the latest published release."""
         published_releases = [r for r in self.releases if r.published_at and not r.is_draft]
         if not published_releases:
             return None
         return max(published_releases, key=lambda r: r.published_at)
     
     def get_commits_since(self, date: datetime) -> List[Commit]:
-        """Retourne les commits depuis une date donnée."""
+        """Returns commits since given date."""
         return [c for c in self.commits if c.date >= date]
     
     def get_open_issues(self) -> List[Issue]:
@@ -174,7 +174,7 @@ class ProjectData(BaseModel):
         return [i for i in self.issues if i.status == IssueStatus.OPEN]
     
     def get_closed_issues_since(self, date: datetime) -> List[Issue]:
-        """Retourne les issues fermées depuis une date."""
+        """Returns issues closed since date."""
         return [
             i for i in self.issues 
             if i.status == IssueStatus.CLOSED and i.closed_at and i.closed_at >= date

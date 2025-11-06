@@ -1,10 +1,10 @@
 """
-Connecteur fichiers locaux pour Wara9a.
+Local files connector for Wara9a.
 
-Collecte les informations depuis le système de fichiers local :
-- Fichiers README, CHANGELOG
-- Structure du projet
-- Métadonnées Git basiques
+Collects information from the local file system:
+- README, CHANGELOG files
+- Project structure
+- Basic Git metadata
 """
 
 import logging
@@ -29,9 +29,9 @@ class LocalFilesConnector(ConnectorBase):
     """
     Connecteur pour les fichiers locaux.
     
-    Collecte les informations depuis le système de fichiers :
+    Collects information from the file system:
     - README.md, CHANGELOG.md
-    - Métadonnées Git si disponibles
+    - Git metadata if available
     - Structure du projet
     """
     
@@ -67,19 +67,19 @@ class LocalFilesConnector(ConnectorBase):
         if not path.exists():
             errors.append(f"Le chemin n'existe pas: {config.path}")
         elif not path.is_dir():
-            errors.append(f"Le chemin doit être un dossier: {config.path}")
+            errors.append(f"Path must be a directory: {config.path}")
         
         return errors
     
     def collect(self, config: SourceConfig) -> ProjectData:
         """
-        Collecte les données depuis les fichiers locaux.
+        Collects data from local files.
         
         Args:
             config: Configuration LocalFilesSourceConfig
             
         Returns:
-            Données normalisées du projet
+            Normalized project data
         """
         if not isinstance(config, LocalFilesSourceConfig):
             # Convert generic SourceConfig to LocalFilesSourceConfig
@@ -113,7 +113,7 @@ class LocalFilesConnector(ConnectorBase):
                 source_config=local_config.model_dump()
             )
             
-            logger.info(f"Collecte locale terminée: {len(commits)} commits, "
+            logger.info(f"Local collection completed: {len(commits)} commits, "
                        f"{len(releases)} releases")
             
             return project_data
@@ -173,7 +173,7 @@ class LocalFilesConnector(ConnectorBase):
         return None
     
     def _detect_languages(self, project_path: Path) -> List[str]:
-        """Détecte les langages de programmation utilisés."""
+        """Detects programming languages used."""
         language_extensions = {
             '.py': 'Python',
             '.js': 'JavaScript',
@@ -269,7 +269,7 @@ class LocalFilesConnector(ConnectorBase):
         return git_info
     
     def _get_git_commits(self, project_path: Path, max_commits: int = 50) -> List[Commit]:
-        """Collecte les commits Git récents."""
+        """Collects recent Git commits."""
         commits = []
         
         if not (project_path / '.git').exists():

@@ -1,1 +1,1 @@
-"""Connecteurs pour diverses sources de données."""
+"""Connectors for various data sources."""

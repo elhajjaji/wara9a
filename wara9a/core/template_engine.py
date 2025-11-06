@@ -66,7 +66,7 @@ class BuiltinTemplateLoader(BaseLoader):
 {% endif %}
 
 {% if recent_commits %}
-## 📝 Commits récents
+## 📝 Recent commits
 
 {% for commit in recent_commits %}
 - **{{ commit.date | format_date }}** - {{ commit.message | truncate(80) }} ([{{ commit.sha[:7] }}]({{ commit.url }}))
@@ -139,7 +139,7 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 {% set others = release_commits | reject('message', 'match', '^(feat|fix)') %}
 
 {% if features %}
-### ✨ Nouvelles fonctionnalités
+### ✨ New features
 
 {% for commit in features %}
 - {{ commit.message | clean_commit_message }} ([{{ commit.sha[:7] }}]({{ commit.url }}))
