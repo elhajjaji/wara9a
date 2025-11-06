@@ -114,6 +114,31 @@ class ConnectorRegistry:
         """Retourne la liste des types de connecteurs disponibles."""
         return list(self._connectors.keys())
     
+    def list_connectors_by_category(self, category: str) -> List[ConnectorBase]:
+        """
+        Returns connectors filtered by category.
+        
+        Args:
+            category: 'ticketing', 'git', 'files', or 'custom'
+            
+        Returns:
+            List of connectors in that category
+        """
+        from wara9a.core.connector_base import ConnectorCategory
+        
+        try:
+            filter_category = ConnectorCategory(category)
+        except ValueError:
+            logger.warning(f"Invalid category: {category}")
+            return []
+        
+        connectors = []
+        for connector in self.list_connectors():
+            if connector.category == filter_category:
+                connectors.append(connector)
+        
+        return connectors
+    
     def get_connector_info(self, connector_type: str) -> Dict[str, str]:
         """Retourne les informations sur un connecteur."""
         connector = self.get_connector(connector_type)
@@ -121,6 +146,8 @@ class ConnectorRegistry:
             "type": connector.connector_type,
             "name": connector.display_name,
             "description": connector.description,
+            "category": connector.category.value,
+            "documentation_type": getattr(connector, "documentation_type", "N/A"),
             "required_fields": connector.required_config_fields,
             "optional_fields": connector.optional_config_fields,
         }

@@ -20,10 +20,11 @@ try:
 except ImportError:
     from urllib3.util.retry import Retry
 
-from wara9a.core.connector_base import ConnectorBase, ConnectorError, ConnectorConnectionError
+from wara9a.core.connector_base import GitConnector, ConnectorError, ConnectorConnectionError
 from wara9a.core.models import (
-    ProjectData, Repository, Commit, Issue, PullRequest, Release,
-    Author, Label, SourceType, IssueStatus, IssueType
+    ProjectData, TechnicalData, Repository, Release,
+    TechnicalCommit, TechnicalPullRequest, CodeChange, CodeMetrics,
+    Author, Label, SourceType
 )
 from wara9a.core.config import SourceConfig, GitHubSourceConfig
 
@@ -31,12 +32,19 @@ from wara9a.core.config import SourceConfig, GitHubSourceConfig
 logger = logging.getLogger(__name__)
 
 
-class GitHubConnector(ConnectorBase):
+class GitHubConnector(GitConnector):
     """
-    Connecteur pour l'API GitHub REST.
+    GitHub connector for technical documentation extraction.
     
-    Collects data from a GitHub repository via REST API v4.
-    Supporte l'authentification par token pour augmenter les limites de taux.
+    Extracts technical documentation from GitHub repositories:
+    - Commits history and code changes
+    - Pull requests and code reviews
+    - Repository structure and metadata
+    - Releases and tags
+    
+    Category: GIT (Technical Documentation)
+    Data Source: GitHub REST API v4
+    Authentication: Personal Access Token (optional but recommended)
     """
     
     BASE_URL = "https://api.github.com"
@@ -109,33 +117,46 @@ class GitHubConnector(ConnectorBase):
         if errors:
             raise ConnectorError(f"Configuration invalide: {errors}")
         
-        logger.info(f"Collecte depuis GitHub: {github_config.repo}")
+        logger.info(f"🔍 Collecting technical documentation from GitHub: {github_config.repo}")
         
         try:
-            # Configurer l'authentification si token fourni
+            # Configure authentication if token provided
             if github_config.token:
                 self.session.headers['Authorization'] = f"token {github_config.token}"
             
-            # Collect data
+            # Collect repository info and releases
             repository = self._get_repository(github_config)
-            commits = self._get_commits(github_config)
-            issues = self._get_issues(github_config)
-            pull_requests = self._get_pull_requests(github_config)
             releases = self._get_releases(github_config)
             
+            # Collect technical data (new standardized format)
+            technical_commits = self._get_technical_commits(github_config)
+            technical_prs = self._get_technical_pull_requests(github_config)
+            code_metrics = self._get_code_metrics(github_config)
+            
+            # Create TechnicalData structure
+            technical_data = TechnicalData(
+                commits=technical_commits,
+                pull_requests=technical_prs,
+                code_metrics=code_metrics,
+                technical_debt=[],  # Can be implemented later
+                repository_name=github_config.repo,
+                repository_url=repository.url,
+                default_branch=repository.default_branch,
+                source_type=SourceType.GITHUB
+            )
+            
+            # Create ProjectData with new structure
             project_data = ProjectData(
+                functional_data=None,  # GitHub doesn't provide functional data
+                technical_data=technical_data,
                 repository=repository,
-                commits=commits,
-                issues=issues,
-                pull_requests=pull_requests,
                 releases=releases,
                 source_type=SourceType.GITHUB,
                 source_config=github_config.model_dump()
             )
             
-            logger.info(f"GitHub collection completed: {len(commits)} commits, "
-                       f"{len(issues)} issues, {len(pull_requests)} PRs, "
-                       f"{len(releases)} releases")
+            logger.info(f"✅ GitHub collection completed: {len(technical_commits)} commits, "
+                       f"{len(technical_prs)} PRs, {len(releases)} releases")
             
             return project_data
             
@@ -198,8 +219,8 @@ class GitHubConnector(ConnectorBase):
         # Sort by byte count (most used first)
         return list(languages_data.keys())
     
-    def _get_commits(self, config: GitHubSourceConfig) -> List[Commit]:
-        """Collects recent commits."""
+    def _get_technical_commits(self, config: GitHubSourceConfig) -> List[TechnicalCommit]:
+        """Collects commits with detailed technical information."""
         url = f"{self.BASE_URL}/repos/{config.repo}/commits"
         params = {
             'per_page': min(config.max_commits or 100, 100),
@@ -211,86 +232,84 @@ class GitHubConnector(ConnectorBase):
         
         commits = []
         for commit_data in commits_data:
-            commit = Commit(
+            # Get detailed commit info (includes file changes)
+            detailed_url = f"{self.BASE_URL}/repos/{config.repo}/commits/{commit_data['sha']}"
+            try:
+                detailed_response = self._make_request(detailed_url)
+                detailed_data = detailed_response.json()
+            except Exception as e:
+                logger.warning(f"Could not get details for commit {commit_data['sha'][:7]}: {e}")
+                detailed_data = commit_data
+            
+            # Parse commit message
+            message = commit_data['commit']['message']
+            message_lines = message.split('\n')
+            message_subject = message_lines[0]
+            message_body = '\n'.join(message_lines[1:]).strip() if len(message_lines) > 1 else None
+            
+            # Extract linked issues from message (#123)
+            import re
+            linked_issues = re.findall(r'#(\d+)', message)
+            
+            # Parse file changes
+            files_changed = []
+            for file_data in detailed_data.get('files', []):
+                change = CodeChange(
+                    file_path=file_data['filename'],
+                    change_type=file_data['status'],  # added, modified, deleted
+                    additions=file_data.get('additions', 0),
+                    deletions=file_data.get('deletions', 0),
+                    changes=file_data.get('changes', 0),
+                    language=self._detect_language(file_data['filename'])
+                )
+                files_changed.append(change)
+            
+            commit = TechnicalCommit(
                 sha=commit_data['sha'],
-                message=commit_data['commit']['message'],
+                short_sha=commit_data['sha'][:7],
+                message=message,
+                message_subject=message_subject,
+                message_body=message_body,
                 author=self._parse_author(commit_data),
                 date=self._parse_github_date(commit_data['commit']['author']['date']),
                 url=commit_data['html_url'],
-                # Note: files_changed requires an additional request per commit
-                # We'll only do it for the few most recent commits
-                files_changed=[],
-                additions=0,
-                deletions=0
+                files_changed=files_changed,
+                total_additions=detailed_data.get('stats', {}).get('additions', 0),
+                total_deletions=detailed_data.get('stats', {}).get('deletions', 0),
+                linked_issues=linked_issues,
+                linked_prs=[]
             )
             commits.append(commit)
         
-        # Enrich first 5 commits with file details
-        for commit in commits[:5]:
-            self._enrich_commit_details(config, commit)
-        
         return commits
     
-    def _enrich_commit_details(self, config: GitHubSourceConfig, commit: Commit) -> None:
-        """Enriches a commit with modified file details."""
-        try:
-            url = f"{self.BASE_URL}/repos/{config.repo}/commits/{commit.sha}"
-            response = self._make_request(url)
-            commit_details = response.json()
-            
-            commit.files_changed = [f['filename'] for f in commit_details.get('files', [])]
-            
-            stats = commit_details.get('stats', {})
-            commit.additions = stats.get('additions', 0)
-            commit.deletions = stats.get('deletions', 0)
-            
-        except Exception as e:
-            logger.warning(f"Impossible d'enrichir le commit {commit.sha[:7]}: {e}")
-    
-    def _get_issues(self, config: GitHubSourceConfig) -> List[Issue]:
-        """Collecte les issues du repository."""
-        url = f"{self.BASE_URL}/repos/{config.repo}/issues"
-        params = {
-            'state': 'all',
-            'per_page': min(config.max_issues or 100, 100),
-            'sort': 'updated',
-            'direction': 'desc'
+    def _detect_language(self, filename: str) -> Optional[str]:
+        """Detects programming language from file extension."""
+        ext_map = {
+            '.py': 'python',
+            '.js': 'javascript',
+            '.ts': 'typescript',
+            '.java': 'java',
+            '.go': 'go',
+            '.rs': 'rust',
+            '.cpp': 'cpp',
+            '.c': 'c',
+            '.rb': 'ruby',
+            '.php': 'php',
+            '.swift': 'swift',
+            '.kt': 'kotlin',
+            '.cs': 'csharp',
         }
-        
-        response = self._make_request(url, params=params)
-        issues_data = response.json()
-        
-        issues = []
-        for issue_data in issues_data:
-            # Ignorer les pull requests (GitHub les retourne dans /issues)
-            if 'pull_request' in issue_data:
-                continue
-            
-            issue = Issue(
-                id=str(issue_data['number']),
-                title=issue_data['title'],
-                description=issue_data.get('body'),
-                status=IssueStatus.OPEN if issue_data['state'] == 'open' else IssueStatus.CLOSED,
-                type=self._guess_issue_type(issue_data),
-                author=self._parse_user_as_author(issue_data['user']),
-                assignee=self._parse_user_as_author(issue_data['assignee']) if issue_data.get('assignee') else None,
-                labels=self._parse_labels(issue_data.get('labels', [])),
-                created_at=self._parse_github_date(issue_data['created_at']),
-                updated_at=self._parse_github_date(issue_data['updated_at']),
-                closed_at=self._parse_github_date(issue_data['closed_at']) if issue_data.get('closed_at') else None,
-                url=issue_data['html_url'],
-                comments_count=issue_data['comments']
-            )
-            issues.append(issue)
-        
-        return issues
+        import os
+        _, ext = os.path.splitext(filename)
+        return ext_map.get(ext.lower())
     
-    def _get_pull_requests(self, config: GitHubSourceConfig) -> List[PullRequest]:
-        """Collecte les pull requests du repository."""
+    def _get_technical_pull_requests(self, config: GitHubSourceConfig) -> List[TechnicalPullRequest]:
+        """Collects pull requests with review information."""
         url = f"{self.BASE_URL}/repos/{config.repo}/pulls"
         params = {
             'state': 'all',
-            'per_page': min(config.max_issues or 50, 100),  # Reuse max_issues
+            'per_page': min(config.max_issues or 50, 100),
             'sort': 'updated',
             'direction': 'desc'
         }
@@ -300,25 +319,95 @@ class GitHubConnector(ConnectorBase):
         
         pull_requests = []
         for pr_data in prs_data:
-            pr = PullRequest(
+            # Get review information
+            reviewers = []
+            approved_by = []
+            review_comments_count = 0
+            
+            try:
+                reviews_url = f"{self.BASE_URL}/repos/{config.repo}/pulls/{pr_data['number']}/reviews"
+                reviews_response = self._make_request(reviews_url)
+                reviews = reviews_response.json()
+                
+                review_comments_count = len(reviews)
+                seen_reviewers = set()
+                
+                for review in reviews:
+                    reviewer_login = review['user']['login']
+                    if reviewer_login not in seen_reviewers:
+                        reviewers.append(reviewer_login)
+                        seen_reviewers.add(reviewer_login)
+                    
+                    if review['state'] == 'APPROVED':
+                        if reviewer_login not in approved_by:
+                            approved_by.append(reviewer_login)
+                            
+            except Exception as e:
+                logger.warning(f"Could not get reviews for PR #{pr_data['number']}: {e}")
+            
+            # Extract linked issues from PR body and title
+            import re
+            pr_text = f"{pr_data['title']} {pr_data.get('body', '')}"
+            linked_issues = re.findall(r'#(\d+)', pr_text)
+            
+            # Determine merge status
+            is_merged = pr_data.get('merged_at') is not None
+            state = 'merged' if is_merged else pr_data['state']
+            
+            pr = TechnicalPullRequest(
                 id=str(pr_data['number']),
+                number=pr_data['number'],
                 title=pr_data['title'],
                 description=pr_data.get('body'),
                 author=self._parse_user_as_author(pr_data['user']),
-                status=pr_data['state'],  # open, closed
+                state=state,
+                is_merged=is_merged,
                 source_branch=pr_data['head']['ref'],
                 target_branch=pr_data['base']['ref'],
                 created_at=self._parse_github_date(pr_data['created_at']),
+                updated_at=self._parse_github_date(pr_data['updated_at']),
                 merged_at=self._parse_github_date(pr_data['merged_at']) if pr_data.get('merged_at') else None,
+                closed_at=self._parse_github_date(pr_data['closed_at']) if pr_data.get('closed_at') else None,
                 url=pr_data['html_url'],
-                commits=[],  # Could be enriched with additional request
-                files_changed=pr_data.get('changed_files', 0),
+                commits=[],  # Could be enriched but would require many API calls
+                files_changed_count=pr_data.get('changed_files', 0),
                 additions=pr_data.get('additions', 0),
-                deletions=pr_data.get('deletions', 0)
+                deletions=pr_data.get('deletions', 0),
+                reviewers=reviewers,
+                approved_by=approved_by,
+                review_comments_count=review_comments_count,
+                linked_issues=linked_issues,
+                labels=[label['name'] for label in pr_data.get('labels', [])]
             )
             pull_requests.append(pr)
         
         return pull_requests
+    
+    def _get_code_metrics(self, config: GitHubSourceConfig) -> Dict[str, CodeMetrics]:
+        """Collects code metrics from repository languages statistics."""
+        url = f"{self.BASE_URL}/repos/{config.repo}/languages"
+        response = self._make_request(url)
+        
+        languages_data = response.json()
+        
+        # Convert byte counts to metrics
+        metrics = {}
+        total_bytes = sum(languages_data.values())
+        
+        for language, bytes_count in languages_data.items():
+            # Estimate lines of code (rough average: 50 bytes per line)
+            estimated_lines = bytes_count // 50
+            percentage = (bytes_count / total_bytes * 100) if total_bytes > 0 else 0
+            
+            metrics[language] = CodeMetrics(
+                language=language,
+                files_count=0,  # GitHub API doesn't provide this easily
+                lines_of_code=estimated_lines,
+                percentage=round(percentage, 2),
+                complexity=None  # Would require code analysis
+            )
+        
+        return metrics
     
     def _get_releases(self, config: GitHubSourceConfig) -> List[Release]:
         """Collecte les releases du repository."""
@@ -418,26 +507,3 @@ class GitHubConnector(ConnectorBase):
             )
             for label in labels_data
         ]
-    
-    def _guess_issue_type(self, issue_data: Dict[str, Any]) -> IssueType:
-        """Guesses issue type based on labels and title."""
-        labels = [label['name'].lower() for label in issue_data.get('labels', [])]
-        title_lower = issue_data['title'].lower()
-        
-        # Chercher dans les labels d'abord
-        if any(label in ['bug', 'defect', 'error'] for label in labels):
-            return IssueType.BUG
-        elif any(label in ['enhancement', 'feature', 'new-feature'] for label in labels):
-            return IssueType.FEATURE
-        elif any(label in ['task', 'chore', 'maintenance'] for label in labels):
-            return IssueType.TASK
-        elif any(label in ['epic'] for label in labels):
-            return IssueType.EPIC
-        
-        # Fallback sur le titre
-        if any(word in title_lower for word in ['bug', 'fix', 'error', 'issue']):
-            return IssueType.BUG
-        elif any(word in title_lower for word in ['feature', 'add', 'implement']):
-            return IssueType.FEATURE
-        
-        return IssueType.TASK  # Default

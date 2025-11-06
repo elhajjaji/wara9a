@@ -14,9 +14,9 @@ from typing import List, Optional, Dict, Any
 import re
 import subprocess
 
-from wara9a.core.connector_base import ConnectorBase, ConnectorError
+from wara9a.core.connector_base import FilesConnector, ConnectorError
 from wara9a.core.models import (
-    ProjectData, Repository, Commit, Issue, PullRequest, Release,
+    ProjectData, TechnicalData, Repository, TechnicalCommit, Release,
     Author, SourceType
 )
 from wara9a.core.config import SourceConfig, LocalFilesSourceConfig
@@ -25,14 +25,18 @@ from wara9a.core.config import SourceConfig, LocalFilesSourceConfig
 logger = logging.getLogger(__name__)
 
 
-class LocalFilesConnector(ConnectorBase):
+class LocalFilesConnector(FilesConnector):
     """
-    Connecteur pour les fichiers locaux.
+    Local files connector for file-based documentation extraction.
     
-    Collects information from the file system:
+    Extracts documentation from local files:
     - README.md, CHANGELOG.md
-    - Git metadata if available
-    - Structure du projet
+    - Documentation directories
+    - Git metadata (if available)
+    - Project structure
+    
+    Category: FILES (File-based Documentation)
+    Data Source: Local file system
     """
     
     @property
@@ -98,22 +102,31 @@ class LocalFilesConnector(ConnectorBase):
         try:
             # Collect data
             repository = self._get_repository_info(project_path)
-            commits = self._get_git_commits(project_path)
-            issues = []  # Pas d'issues dans les fichiers locaux
-            pull_requests = []  # Pas de PRs dans les fichiers locaux
+            technical_commits = self._get_git_commits(project_path)
             releases = self._parse_changelog_releases(project_path, local_config)
             
+            # Create TechnicalData structure
+            technical_data = TechnicalData(
+                commits=technical_commits,
+                pull_requests=[],  # No PRs in local files
+                code_metrics={},  # Could be implemented with cloc or similar tools
+                technical_debt=[],
+                repository_name=repository.name,
+                repository_url=repository.url,
+                default_branch=repository.default_branch,
+                source_type=SourceType.LOCAL_FILES
+            ) if technical_commits else None
+            
             project_data = ProjectData(
+                functional_data=None,  # Local files don't provide functional data
+                technical_data=technical_data,
                 repository=repository,
-                commits=commits,
-                issues=issues,
-                pull_requests=pull_requests,
                 releases=releases,
                 source_type=SourceType.LOCAL_FILES,
                 source_config=local_config.model_dump()
             )
             
-            logger.info(f"Local collection completed: {len(commits)} commits, "
+            logger.info(f"Local collection completed: {len(technical_commits)} commits, "
                        f"{len(releases)} releases")
             
             return project_data
@@ -268,7 +281,7 @@ class LocalFilesConnector(ConnectorBase):
         
         return git_info
     
-    def _get_git_commits(self, project_path: Path, max_commits: int = 50) -> List[Commit]:
+    def _get_git_commits(self, project_path: Path, max_commits: int = 50) -> List[TechnicalCommit]:
         """Collects recent Git commits."""
         commits = []
         
@@ -276,11 +289,11 @@ class LocalFilesConnector(ConnectorBase):
             return commits
         
         try:
-            # Format: hash|author_name|author_email|date|subject
+            # Format: hash|author_name|author_email|date|subject|body
             result = subprocess.run([
                 'git', 'log', 
                 f'--max-count={max_commits}',
-                '--format=%H|%an|%ae|%cI|%s'
+                '--format=%H|%an|%ae|%cI|%s|%b'
             ], 
                 cwd=project_path,
                 capture_output=True,
@@ -295,24 +308,42 @@ class LocalFilesConnector(ConnectorBase):
                 if not line:
                     continue
                 
-                parts = line.split('|', 4)
-                if len(parts) != 5:
+                parts = line.split('|', 5)
+                if len(parts) < 5:
                     continue
                 
-                sha, author_name, author_email, date_str, message = parts
+                sha = parts[0]
+                author_name = parts[1]
+                author_email = parts[2]
+                date_str = parts[3]
+                message_subject = parts[4]
+                message_body = parts[5] if len(parts) > 5 else None
                 
-                commit = Commit(
+                full_message = message_subject
+                if message_body and message_body.strip():
+                    full_message += f"\n\n{message_body.strip()}"
+                
+                # Extract linked issues from message
+                import re
+                linked_issues = re.findall(r'#(\d+)', full_message)
+                
+                commit = TechnicalCommit(
                     sha=sha,
-                    message=message,
+                    short_sha=sha[:7],
+                    message=full_message,
+                    message_subject=message_subject,
+                    message_body=message_body.strip() if message_body else None,
                     author=Author(
                         name=author_name,
                         email=author_email
                     ),
                     date=datetime.fromisoformat(date_str.replace('Z', '+00:00')),
-                    url=None,  # Pas d'URL pour les commits locaux
-                    files_changed=[],
-                    additions=0,
-                    deletions=0
+                    url=None,  # No URL for local commits
+                    files_changed=[],  # Could be enriched with git show
+                    total_additions=0,
+                    total_deletions=0,
+                    linked_issues=linked_issues,
+                    linked_prs=[]
                 )
                 commits.append(commit)
                 

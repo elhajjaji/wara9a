@@ -3,13 +3,26 @@ Interface de base pour les connecteurs Wara9a.
 
 Defines the contract that all connectors must respect
 to ensure interoperability and data consistency.
+
+Two main connector categories:
+- TicketingConnector: For functional documentation (epics, features, stories)
+- GitConnector: For technical documentation (commits, PRs, code)
 """
 
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List
+from enum import Enum
 
 from wara9a.core.models import ProjectData
 from wara9a.core.config import SourceConfig
+
+
+class ConnectorCategory(str, Enum):
+    """Connector categories based on documentation type."""
+    TICKETING = "ticketing"  # Functional documentation (Jira, Azure DevOps)
+    GIT = "git"              # Technical documentation (GitHub, GitLab)
+    FILES = "files"          # Local files and documents
+    CUSTOM = "custom"        # Custom connectors
 
 
 class ConnectorBase(ABC):
@@ -19,6 +32,18 @@ class ConnectorBase(ABC):
     Each connector must inherit from this class and implement
     abstract methods to collect and normalize data.
     """
+    
+    @property
+    @abstractmethod
+    def category(self) -> ConnectorCategory:
+        """
+        Returns the connector category.
+        
+        - TICKETING: Functional documentation from ticketing systems
+        - GIT: Technical documentation from Git repositories
+        - FILES: Documentation from local files
+        """
+        pass
     
     @property
     @abstractmethod
@@ -152,3 +177,107 @@ class ConnectorConfigError(ConnectorError):
 class ConnectorConnectionError(ConnectorError):
     """Erreur de connexion d'un connecteur."""
     pass
+
+
+class TicketingConnector(ConnectorBase):
+    """
+    Base class for ticketing system connectors.
+    
+    These connectors extract functional documentation:
+    - Epics, features, user stories
+    - Sprint planning and roadmap
+    - Business requirements
+    
+    Examples: Jira, Azure DevOps, Linear, Asana
+    
+    IMPORTANT: All ticketing connectors must populate ProjectData.functional_data
+    with standardized Epic, Feature, UserStory, and Requirement objects.
+    """
+    
+    @property
+    def category(self) -> ConnectorCategory:
+        """Ticketing connectors provide functional documentation."""
+        return ConnectorCategory.TICKETING
+    
+    @property
+    def documentation_type(self) -> str:
+        """Returns the documentation type provided by this connector."""
+        return "Functional Documentation (Epics, Features, Stories)"
+    
+    @property
+    def standard_output_fields(self) -> List[str]:
+        """
+        Returns the standard output fields that must be populated.
+        
+        All ticketing connectors should populate:
+        - ProjectData.functional_data.epics
+        - ProjectData.functional_data.features
+        - ProjectData.functional_data.user_stories
+        - ProjectData.functional_data.requirements
+        """
+        return ["functional_data.epics", "functional_data.features", 
+                "functional_data.user_stories", "functional_data.requirements"]
+
+
+class GitConnector(ConnectorBase):
+    """
+    Base class for Git repository connectors.
+    
+    These connectors extract technical documentation:
+    - Commits history and code changes
+    - Pull/Merge requests and code reviews
+    - Repository structure and architecture
+    - API documentation from code
+    
+    Examples: GitHub, GitLab, Bitbucket
+    
+    IMPORTANT: All Git connectors must populate ProjectData.technical_data
+    with standardized TechnicalCommit, TechnicalPullRequest, CodeMetrics objects.
+    """
+    
+    @property
+    def category(self) -> ConnectorCategory:
+        """Git connectors provide technical documentation."""
+        return ConnectorCategory.GIT
+    
+    @property
+    def documentation_type(self) -> str:
+        """Returns the documentation type provided by this connector."""
+        return "Technical Documentation (Commits, PRs, Code)"
+    
+    @property
+    def standard_output_fields(self) -> List[str]:
+        """
+        Returns the standard output fields that must be populated.
+        
+        All Git connectors should populate:
+        - ProjectData.technical_data.commits (TechnicalCommit objects)
+        - ProjectData.technical_data.pull_requests (TechnicalPullRequest objects)
+        - ProjectData.technical_data.code_metrics (CodeMetrics by language)
+        - ProjectData.technical_data.technical_debt (Optional)
+        """
+        return ["technical_data.commits", "technical_data.pull_requests",
+                "technical_data.code_metrics", "technical_data.technical_debt"]
+
+
+class FilesConnector(ConnectorBase):
+    """
+    Base class for file-based connectors.
+    
+    These connectors extract documentation from files:
+    - README, CHANGELOG
+    - Documentation directories
+    - Configuration files
+    
+    Examples: Local files, cloud storage
+    """
+    
+    @property
+    def category(self) -> ConnectorCategory:
+        """Files connectors provide file-based documentation."""
+        return ConnectorCategory.FILES
+    
+    @property
+    def documentation_type(self) -> str:
+        """Returns the documentation type provided by this connector."""
+        return "File-based Documentation"

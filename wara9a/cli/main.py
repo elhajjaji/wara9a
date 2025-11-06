@@ -389,19 +389,56 @@ def connectors(config: Optional[str]) -> None:
         
         connectors_list = registry.list_connectors()
         
-        table = Table(title="🔌 Connecteurs disponibles")
-        table.add_column("Type", style="blue")
-        table.add_column("Name", style="green")
-        table.add_column("Description", style="cyan")
+        # Group connectors by category
+        from wara9a.core.connector_base import ConnectorCategory
         
-        for connector in connectors_list:
-            table.add_row(
-                connector.connector_type,
-                connector.display_name,
-                connector.description
-            )
+        # Ticketing connectors (functional documentation)
+        ticketing = [c for c in connectors_list if c.category == ConnectorCategory.TICKETING]
+        if ticketing:
+            table = Table(title="� Ticketing Connectors (Functional Documentation)")
+            table.add_column("Type", style="blue")
+            table.add_column("Name", style="green")
+            table.add_column("Description", style="cyan")
+            
+            for connector in ticketing:
+                table.add_row(
+                    connector.connector_type,
+                    connector.display_name,
+                    connector.description
+                )
+            console.print(table)
         
-        console.print(table)
+        # Git connectors (technical documentation)
+        git = [c for c in connectors_list if c.category == ConnectorCategory.GIT]
+        if git:
+            table = Table(title="🔧 Git Connectors (Technical Documentation)")
+            table.add_column("Type", style="blue")
+            table.add_column("Name", style="green")
+            table.add_column("Description", style="cyan")
+            
+            for connector in git:
+                table.add_row(
+                    connector.connector_type,
+                    connector.display_name,
+                    connector.description
+                )
+            console.print(table)
+        
+        # Files connectors
+        files = [c for c in connectors_list if c.category == ConnectorCategory.FILES]
+        if files:
+            table = Table(title="📁 Files Connectors")
+            table.add_column("Type", style="blue")
+            table.add_column("Name", style="green")
+            table.add_column("Description", style="cyan")
+            
+            for connector in files:
+                table.add_row(
+                    connector.connector_type,
+                    connector.display_name,
+                    connector.description
+                )
+            console.print(table)
         
         if not connectors_list:
             console.print("⚠️  No connector found")
