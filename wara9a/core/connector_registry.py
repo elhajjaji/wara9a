@@ -29,7 +29,7 @@ class ConnectorRegistry:
         self._instances: Dict[str, ConnectorBase] = {}
         self._loaded_plugins: Set[str] = set()
         
-        # Charger les connecteurs intégrés
+        # Load built-in connectors
         self._load_builtin_connectors()
     
     def register_connector(self, connector_class: Type[ConnectorBase]) -> None:
@@ -45,7 +45,7 @@ class ConnectorRegistry:
         if not issubclass(connector_class, ConnectorBase):
             raise ValueError(f"{connector_class} doit hériter de ConnectorBase")
         
-        # Créer une instance temporaire pour obtenir le type
+        # Create temporary instance to get type
         temp_instance = connector_class()
         connector_type = temp_instance.connector_type
         
@@ -84,7 +84,7 @@ class ConnectorRegistry:
                 f"Connecteurs disponibles: {available}"
             )
         
-        # Utiliser l'instance en cache ou en créer une nouvelle
+        # Use cached instance or create new one
         if connector_type not in self._instances:
             connector_class = self._connectors[connector_type]
             self._instances[connector_type] = connector_class()
@@ -148,7 +148,7 @@ class ConnectorRegistry:
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
             
-            # Vérifier si c'est une classe de connecteur
+            # Check if it's a connector class
             if (isinstance(attr, type) and 
                 issubclass(attr, ConnectorBase) and 
                 attr != ConnectorBase):
@@ -161,7 +161,7 @@ class ConnectorRegistry:
     def _try_load_connector(self, connector_type: str) -> None:
         """Essaie de charger un connecteur dynamiquement."""
         if connector_type in self._loaded_plugins:
-            return  # Déjà essayé
+            return  # Already tried
         
         self._loaded_plugins.add(connector_type)
         

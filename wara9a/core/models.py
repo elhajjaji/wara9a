@@ -153,7 +153,7 @@ class ProjectData(BaseModel):
     pull_requests: List[PullRequest] = Field(default_factory=list, description="Liste des PRs")
     releases: List[Release] = Field(default_factory=list, description="Liste des releases")
     
-    # Métadonnées de collecte
+    # Collection metadata
     collected_at: datetime = Field(default_factory=datetime.now, description="Date de collecte")
     source_type: SourceType = Field(description="Type de source")
     source_config: Dict[str, Any] = Field(default_factory=dict, description="Config du connecteur")

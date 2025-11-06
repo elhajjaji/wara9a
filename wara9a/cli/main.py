@@ -590,7 +590,7 @@ def deps_list() -> None:
     
     console.print(table)
     
-    # Table des générateurs
+    # Generators table
     gen_table = Table(title="📄 Générateurs et dépendances")
     gen_table.add_column("Générateur", style="blue")
     gen_table.add_column("Packages", style="green")

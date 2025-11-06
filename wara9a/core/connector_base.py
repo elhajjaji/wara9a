@@ -91,9 +91,9 @@ class ConnectorBase(ABC):
             True si la connexion réussit, False sinon
         """
         try:
-            # Par défaut, on essaie une collecte limitée
+            # By default, try limited collection
             test_config = config.model_copy()
-            # Limiter les données pour le test
+            # Limit data for test
             if hasattr(test_config, 'max_commits'):
                 test_config.max_commits = 1
             if hasattr(test_config, 'max_issues'):

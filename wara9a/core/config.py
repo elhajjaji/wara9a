@@ -28,8 +28,8 @@ class SourceConfig(BaseModel):
     name: Optional[str] = Field(default=None, description="Nom de la source")
     enabled: bool = Field(default=True, description="Source activée")
     
-    # Configuration spécifique au type de connecteur
-    # Les champs supplémentaires sont acceptés via extra="allow"
+    # Connector type specific configuration
+    # Additional fields are accepted via extra="allow"
 
 
 class GitHubSourceConfig(SourceConfig):

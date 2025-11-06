@@ -23,7 +23,7 @@ class BuiltinTemplateLoader(BaseLoader):
     """Loader pour les templates intégrés de Wara9a."""
     
     def __init__(self):
-        # Templates intégrés (sera étendu plus tard)
+        # Built-in templates (will be extended later)
         self.templates = {
             "readme": self._readme_template(),
             "changelog": self._changelog_template(),
@@ -200,23 +200,23 @@ class TemplateEngine:
         # Configurer Jinja2 avec loaders multiples
         loaders = [BuiltinTemplateLoader()]
         
-        # Ajouter les dossiers de templates personnalisés
+        # Add custom template directories
         for template_dir in self.template_dirs:
             if template_dir.exists():
                 loaders.append(FileSystemLoader(str(template_dir)))
         
-        # Loader combiné (cherche dans l'ordre: personnalisé puis intégré)
-        loader = jinja2.ChoiceLoader(loaders[::-1])  # Inverser pour prioriser les personnalisés
+        # Combined loader (searches in order: custom then built-in)
+        loader = jinja2.ChoiceLoader(loaders[::-1])  # Reverse to prioritize custom ones
         
         self.env = Environment(
             loader=loader,
-            autoescape=False,  # Pas d'échappement HTML par défaut
+            autoescape=False,  # No HTML escaping by default
             trim_blocks=True,
             lstrip_blocks=True,
             keep_trailing_newline=True,
         )
         
-        # Ajouter les filtres personnalisés
+        # Add custom filters
         self._register_filters()
         
         # Ajouter les fonctions globales
@@ -240,7 +240,7 @@ class TemplateEngine:
             TemplateError: Si erreur lors du rendu
         """
         try:
-            # Utiliser un template personnalisé si spécifié
+            # Use custom template if specified
             if template_config and template_config.template_file:
                 template_path = Path(template_config.template_file)
                 if template_path.is_absolute() and template_path.exists():
@@ -251,7 +251,7 @@ class TemplateEngine:
                     # Chercher dans les dossiers de templates
                     template = self.env.get_template(template_config.template_file)
             else:
-                # Utiliser le template intégré
+                # Use built-in template
                 template = self.env.get_template(template_name)
             
             # Rendre le template
@@ -316,7 +316,7 @@ class TemplateEngine:
         
         def clean_commit_message(message: str) -> str:
             """Nettoie un message de commit."""
-            # Supprimer les préfixes conventionnels
+            # Remove conventional prefixes
             message = message.replace('feat:', '').replace('fix:', '').replace('docs:', '')
             message = message.replace('style:', '').replace('refactor:', '').replace('test:', '')
             return message.strip()
@@ -340,7 +340,7 @@ class TemplateEngine:
         
         def select_since_previous_release(commits: List[Dict], current_release: Dict) -> List[Dict]:
             """Sélectionne les commits depuis la release précédente."""
-            # Pour l'instant, retourne tous les commits de la dernière semaine
+            # For now, return all commits from the last week
             if not commits:
                 return []
                 

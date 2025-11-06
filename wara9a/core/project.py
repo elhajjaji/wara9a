@@ -129,7 +129,7 @@ class Project:
         """
         logger.info("Début de la collecte de données")
         
-        # À FAIRE: Implémenter le cache
+        # TODO: Implement cache
         if not force_refresh and self._project_data:
             logger.info("Utilisation des données en cache")
             return self._project_data
@@ -199,7 +199,7 @@ class Project:
         
         output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Nettoyer le dossier si demandé
+        # Clean directory if requested
         if self.config.output.clean_before:
             logger.info(f"Nettoyage du dossier de sortie: {output_dir}")
             for file in output_dir.glob("*"):
@@ -229,13 +229,13 @@ class Project:
             try:
                 logger.info(f"Génération du template: {template_name}")
                 
-                # Préparer le contexte pour le template
+                # Prepare context for template
                 context = self._prepare_template_context(template_config)
                 
                 # Rendre le template
                 content = self.template_engine.render(template_name, context, template_config)
                 
-                # Générer les fichiers dans les formats demandés
+                # Generate files in requested formats
                 for format_name in self.config.output.formats:
                     output_file = output_dir / template_config.output
                     
@@ -262,7 +262,7 @@ class Project:
     def _prepare_template_context(self, template_config) -> Dict[str, Any]:
         """Prépare le contexte de variables pour un template."""
         context = {
-            # Données du projet
+            # Project data
             "project": self.config.project.model_dump(),
             "data": self._project_data.model_dump() if self._project_data else {},
             
@@ -270,7 +270,7 @@ class Project:
             "config": self.config.model_dump(),
             "template": template_config.model_dump(),
             
-            # Variables personnalisées du template
+            # Custom template variables
             **template_config.variables,
         }
         
@@ -304,7 +304,7 @@ class Project:
                 if not template.template_file:
                     errors.append(f"Template non trouvé: {template.name}")
         
-        # Valider les générateurs
+        # Validate generators
         for format_name in self.config.output.formats:
             if format_name not in self.generators:
                 errors.append(f"Générateur non disponible: {format_name}")

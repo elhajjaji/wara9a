@@ -91,7 +91,7 @@ class TestConnectorRegistry:
         """Test initialisation du registre."""
         registry = ConnectorRegistry()
         
-        # Vérifier que des connecteurs sont chargés
+        # Check that connectors are loaded
         connector_types = registry.list_connector_types()
         assert len(connector_types) >= 1
     

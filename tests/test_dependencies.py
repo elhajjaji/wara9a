@@ -50,7 +50,7 @@ class TestDependencyManager:
         manager = DependencyManager()
         missing = manager.check_config_dependencies(config)
         
-        # Pas de dépendances manquantes pour les fichiers locaux
+        # No missing dependencies for local files
         assert len(missing["connectors"]) == 0
         assert len(missing["packages"]) == 0
     
@@ -128,7 +128,7 @@ class TestDependencyManager:
         manager = DependencyManager(auto_install=True, dry_run=True)
         
         with patch.object(manager, '_check_import', return_value=False):
-            # En mode dry-run, ça devrait toujours retourner True
+            # In dry-run mode, it should always return True
             result = manager.auto_install_dependencies(config)
             assert result is True
 
@@ -144,7 +144,7 @@ class TestAutoCheckAndInstall:
             import os
             os.chdir(tmp_path)
             
-            # Devrait retourner True (pas d'erreur) car pas de config = pas de dépendances
+            # Should return True (no error) because no config = no dependencies
             result = auto_check_and_install()
             assert result is True
             
@@ -155,7 +155,7 @@ class TestAutoCheckAndInstall:
         """Test avec configuration fournie."""
         config = create_default_config("Test Project")
         
-        # Avec seulement des fichiers locaux, ça devrait toujours passer
+        # With only local files, it should always pass
         result = auto_check_and_install(config=config, auto_install=False)
         assert result is True
     

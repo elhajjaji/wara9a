@@ -76,7 +76,7 @@ class GitHubConnector(ConnectorBase):
         if '/' not in config.repo or len(config.repo.split('/')) != 2:
             errors.append("Le format du repo doit être 'owner/repo'")
         
-        # Valider les limites numériques
+        # Validate numeric limits
         if hasattr(config, 'max_commits') and config.max_commits < 1:
             errors.append("max_commits doit être >= 1")
         
@@ -99,7 +99,7 @@ class GitHubConnector(ConnectorBase):
             ConnectorError: Si erreur lors de la collecte
         """
         if not isinstance(config, GitHubSourceConfig):
-            # Convertir SourceConfig générique vers GitHubSourceConfig
+            # Convert generic SourceConfig to GitHubSourceConfig
             github_config = GitHubSourceConfig(**config.model_dump())
         else:
             github_config = config
@@ -116,7 +116,7 @@ class GitHubConnector(ConnectorBase):
             if github_config.token:
                 self.session.headers['Authorization'] = f"token {github_config.token}"
             
-            # Collecter les données
+            # Collect data
             repository = self._get_repository(github_config)
             commits = self._get_commits(github_config)
             issues = self._get_issues(github_config)
@@ -160,7 +160,7 @@ class GitHubConnector(ConnectorBase):
         session.mount("http://", adapter)
         session.mount("https://", adapter)
         
-        # Headers par défaut
+        # Default headers
         session.headers.update({
             'Accept': 'application/vnd.github.v3+json',
             'User-Agent': 'Wara9a/1.0.0'
@@ -195,7 +195,7 @@ class GitHubConnector(ConnectorBase):
         response = self._make_request(url)
         
         languages_data = response.json()
-        # Trier par nombre de bytes (plus utilisé en premier)
+        # Sort by byte count (most used first)
         return list(languages_data.keys())
     
     def _get_commits(self, config: GitHubSourceConfig) -> List[Commit]:
@@ -217,15 +217,15 @@ class GitHubConnector(ConnectorBase):
                 author=self._parse_author(commit_data),
                 date=self._parse_github_date(commit_data['commit']['author']['date']),
                 url=commit_data['html_url'],
-                # Note: files_changed nécessite une requête supplémentaire par commit
-                # On le fera seulement pour les quelques commits les plus récents
+                # Note: files_changed requires an additional request per commit
+                # We'll only do it for the few most recent commits
                 files_changed=[],
                 additions=0,
                 deletions=0
             )
             commits.append(commit)
         
-        # Enrichir les 5 premiers commits avec les détails de fichiers
+        # Enrich first 5 commits with file details
         for commit in commits[:5]:
             self._enrich_commit_details(config, commit)
         
@@ -290,7 +290,7 @@ class GitHubConnector(ConnectorBase):
         url = f"{self.BASE_URL}/repos/{config.repo}/pulls"
         params = {
             'state': 'all',
-            'per_page': min(config.max_issues or 50, 100),  # Réutiliser max_issues
+            'per_page': min(config.max_issues or 50, 100),  # Reuse max_issues
             'sort': 'updated',
             'direction': 'desc'
         }
@@ -311,7 +311,7 @@ class GitHubConnector(ConnectorBase):
                 created_at=self._parse_github_date(pr_data['created_at']),
                 merged_at=self._parse_github_date(pr_data['merged_at']) if pr_data.get('merged_at') else None,
                 url=pr_data['html_url'],
-                commits=[],  # Pourrait être enrichi avec une requête supplémentaire
+                commits=[],  # Could be enriched with additional request
                 files_changed=pr_data.get('changed_files', 0),
                 additions=pr_data.get('additions', 0),
                 deletions=pr_data.get('deletions', 0)
@@ -351,7 +351,7 @@ class GitHubConnector(ConnectorBase):
             response = self.session.get(url, params=params, timeout=30)
             response.raise_for_status()
             
-            # Vérifier les limites de taux
+            # Check rate limits
             if 'X-RateLimit-Remaining' in response.headers:
                 remaining = int(response.headers['X-RateLimit-Remaining'])
                 if remaining < 10:
@@ -440,4 +440,4 @@ class GitHubConnector(ConnectorBase):
         elif any(word in title_lower for word in ['feature', 'add', 'implement']):
             return IssueType.FEATURE
         
-        return IssueType.TASK  # Par défaut
+        return IssueType.TASK  # Default

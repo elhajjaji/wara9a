@@ -82,7 +82,7 @@ class LocalFilesConnector(ConnectorBase):
             Données normalisées du projet
         """
         if not isinstance(config, LocalFilesSourceConfig):
-            # Convertir SourceConfig générique vers LocalFilesSourceConfig
+            # Convert generic SourceConfig to LocalFilesSourceConfig
             local_config = LocalFilesSourceConfig(**config.model_dump())
         else:
             local_config = config
@@ -96,7 +96,7 @@ class LocalFilesConnector(ConnectorBase):
         logger.info(f"Collecte depuis fichiers locaux: {project_path}")
         
         try:
-            # Collecter les données
+            # Collect data
             repository = self._get_repository_info(project_path)
             commits = self._get_git_commits(project_path)
             issues = []  # Pas d'issues dans les fichiers locaux
@@ -129,10 +129,10 @@ class LocalFilesConnector(ConnectorBase):
         # Essayer de lire README pour la description
         description = self._read_readme_description(project_path)
         
-        # Détecter les langages principaux
+        # Detect main languages
         languages = self._detect_languages(project_path)
         
-        # Métadonnées Git si disponibles
+        # Git metadata if available
         git_info = self._get_git_info(project_path)
         
         return Repository(
@@ -158,7 +158,7 @@ class LocalFilesConnector(ConnectorBase):
             if readme_path.exists():
                 try:
                     content = readme_path.read_text(encoding='utf-8')
-                    # Extraire la première ligne après le titre
+                    # Extract first line after title
                     lines = content.strip().split('\n')
                     
                     # Ignorer le titre principal (commence par # ou =)
@@ -205,7 +205,7 @@ class LocalFilesConnector(ConnectorBase):
         
         language_counts: Dict[str, int] = {}
         
-        # Parcourir les fichiers (limité aux 1000 premiers pour performance)
+        # Scan files (limited to first 1000 for performance)
         count = 0
         for file_path in project_path.rglob('*'):
             if count > 1000:
@@ -216,7 +216,7 @@ class LocalFilesConnector(ConnectorBase):
                 language_counts[language] = language_counts.get(language, 0) + 1
                 count += 1
         
-        # Trier par fréquence
+        # Sort by frequency
         return [lang for lang, _ in sorted(language_counts.items(), 
                                          key=lambda x: x[1], reverse=True)]
     
@@ -334,7 +334,7 @@ class LocalFilesConnector(ConnectorBase):
                 try:
                     content = changelog_path.read_text(encoding=config.encoding)
                     releases.extend(self._parse_changelog_content(content))
-                    break  # Utiliser le premier trouvé
+                    break  # Use first found
                 except Exception as e:
                     logger.warning(f"Erreur lors de la lecture de {changelog_path}: {e}")
         
@@ -344,7 +344,7 @@ class LocalFilesConnector(ConnectorBase):
         """Parse le contenu d'un changelog pour extraire les releases."""
         releases = []
         
-        # Regex pour détecter les versions (formats courants)
+        # Regex to detect versions (common formats)
         version_patterns = [
             r'^##?\s*\[?v?(\d+\.\d+\.\d+[^\]]*)\]?\s*-?\s*(\d{4}-\d{2}-\d{2})?',  # ## [1.0.0] - 2023-01-01
             r'^##?\s*Version\s+(\d+\.\d+\.\d+[^\s]*)\s*\((\d{4}-\d{2}-\d{2})\)?',  # ## Version 1.0.0 (2023-01-01)
@@ -361,7 +361,7 @@ class LocalFilesConnector(ConnectorBase):
             for pattern in version_patterns:
                 match = re.match(pattern, line.strip(), re.IGNORECASE)
                 if match:
-                    # Sauvegarder la release précédente
+                    # Save previous release
                     if current_release:
                         current_release.description = '\n'.join(current_description).strip()
                         releases.append(current_release)
@@ -394,13 +394,13 @@ class LocalFilesConnector(ConnectorBase):
                     break
             
             if not version_found and current_release:
-                # Ajouter à la description de la release courante
-                # Ignorer les headers de niveau inférieur et les lignes vides au début
+                # Add to current release description
+                # Ignore lower level headers and empty lines at beginning
                 clean_line = line.strip()
                 if clean_line and not clean_line.startswith('###'):
                     current_description.append(line)
         
-        # Sauvegarder la dernière release
+        # Save last release
         if current_release:
             current_release.description = '\n'.join(current_description).strip()
             releases.append(current_release)

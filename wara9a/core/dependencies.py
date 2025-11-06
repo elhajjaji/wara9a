@@ -161,7 +161,7 @@ class DependencyManager:
         
         if success:
             logger.info("✅ Dépendances installées avec succès")
-            # Vérifier à nouveau
+            # Check again
             missing_after = self.check_config_dependencies(config)
             return not any(missing_after.values())
         else:
@@ -248,7 +248,7 @@ class DependencyManager:
                 groups_needed.add(group)
         
         if groups_needed:
-            # Installation par groupes optionnels (recommandé)
+            # Installation by optional groups (recommended)
             groups_list = ",".join(sorted(groups_needed))
             suggestions.append(f"pip install wara9a[{groups_list}]")
         
@@ -318,7 +318,7 @@ def auto_check_and_install(config: Optional[Wara9aConfig] = None,
         
         if not config_path.exists():
             logger.warning(f"Fichier de configuration non trouvé: {config_path}")
-            return True  # Pas de config = pas de dépendances spéciales
+            return True  # No config = no special dependencies
         
         config = Wara9aConfig.load_from_file(config_path)
     

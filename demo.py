@@ -26,17 +26,16 @@ def create_demo_project():
     print(f"📁 Dossier de démonstration: {demo_dir}")
     
     # Create example files
-    readme_content = """# Projet Démonstration Wara9a
+    readme_content = """    readme_content = """# Wara9a Demo Project
 
-Ce projet démontre les capacités de Wara9a pour générer automatiquement
-de la documentation à partir des sources existantes.
+This is an example project to demonstrate Wara9a capabilities.
 
-## Fonctionnalités
+## Features
 
-- Génération automatique de documentation
-- Support multi-sources (GitHub, fichiers locaux, etc.)
-- Templates flexibles avec Jinja2
-- Sortie multi-formats (Markdown, HTML, PDF)
+- Automatic documentation
+- Generation from multiple sources
+- Customizable templates
+- Multi-format support
 
 ## Installation
 
@@ -44,51 +43,47 @@ de la documentation à partir des sources existantes.
 pip install wara9a
 ```
 
-## Utilisation
+## Usage
 
-```bash
-wara9a init --name "Mon Projet"
-wara9a generate
-```
+See the automatically generated documentation for more details.
 
-## Auteur
+## Author
 
-Équipe Wara9a
+AbdERRAHMAN EL HAJJAJI
+"""
 """
     
-    changelog_content = """# Changelog
+    changelog_content = """changelog_content = """# Changelog
 
-## [1.0.0] - 2025-11-05
+## [1.0.0] - 2025-01-01
 
-### Ajouté
-- Framework principal Wara9a
-- Connecteurs GitHub et fichiers locaux
-- Templates intégrés (README, changelog, release notes)
-- Interface CLI complète
-- Générateurs Markdown et HTML
+### Added
+- Multi-source support
+- Built-in templates
+- HTML and Markdown generation
+- Complete CLI interface
 
-### Changé
-- Architecture modulaire avec système de plugins
+### Changed
+- Performance improvements
 
-### Corrigé
-- Gestion des erreurs de connexion
-- Parsing des dates GitHub
+### Fixed
+- Minor bug fixes
 
-## [0.9.0] - 2025-10-20
+## [0.9.0] - 2024-12-15
 
-### Ajouté
-- Prototype initial
-- Système de configuration YAML
-- Modèles de données normalisés
+### Added
+- First functional prototype
 
-### Changé
-- Migration vers Pydantic v2
+## [0.1.0] - 2024-12-01
 
-## [0.1.0] - 2025-10-01
+### Changed
+- Initial architecture
 
-### Ajouté
-- Première version de développement
-- Concepts de base du framework
+## [0.0.1] - 2024-11-15
+
+### Added
+- Initial project
+"""
 """
     
     # Write files
@@ -135,12 +130,12 @@ def demo_basic_generation():
         print(f"  • Fichiers estimés: {preview['estimated_files']}")
         
         # Generation
-        print("\n⚙️ Génération en cours...")
+        print("\n⚙️ Generation in progress...")
         generated_files = generator.generate_documents()
         
         # Display results
-        print(f"\n✅ Génération terminée ! {len(generated_files)} fichier(s) créé(s)")
-        print(f"📁 Dossier de sortie: {output_dir}")
+        print(f"\n✅ Generation completed! {len(generated_files)} file(s) created")
+        print(f"📁 Output directory: {output_dir}")
         
         for file_path in generated_files:
             print(f"  📄 {file_path.name}")
@@ -150,7 +145,7 @@ def demo_basic_generation():
         return demo_dir, generated_files
         
     except Exception as e:
-        print(f"❌ Erreur lors de la démonstration: {e}")
+        print(f"❌ Error during demonstration: {e}")
         import traceback
         traceback.print_exc()
         return demo_dir, []
@@ -164,7 +159,7 @@ def demo_dependency_management():
     from wara9a.core.config import GitHubSourceConfig, LocalFilesSourceConfig
     
     # Create configuration with GitHub
-    config = create_default_config("Test Dépendances")
+    config = create_default_config("Dependencies Test")
     config.sources = [
         GitHubSourceConfig(
             name="Test GitHub",
@@ -201,12 +196,12 @@ def demo_dependency_management():
         for suggestion in suggestions[:2]:  # Show first 2
             print(f"    {suggestion}")
     
-    print("  🎯 Avec Wara9a, ces dépendances sont installées automatiquement !")
+    print("  🎯 With Wara9a, these dependencies are installed automatically!")
 
 
 def demo_template_customization():
-    """Démonstration de la personnalisation de templates."""
-    print("\n🎨 Démonstration : Personnalisation de templates")
+    """Demonstration of template customization."""
+    print("\n🎨 Demo: Template customization")
     
     # Simple custom template
     custom_template = """# 📊 Rapport de Projet - {{ project.name }}
@@ -241,49 +236,49 @@ def demo_template_customization():
 *Rapport généré par Wara9a*
 """
     
-    print("Template personnalisé créé avec les variables :")
+    print("Custom template created with variables:")
     print("  • project.*")
     print("  • data.*") 
     print("  • recent_commits")
-    print("  • Filtres : format_datetime, truncate, format_date")
+    print("  • Filters: format_datetime, truncate, format_date")
     
     return custom_template
 
 
 def main():
-    """Fonction principale de démonstration."""
-    print("🌟 Démonstration Wara9a - Framework de Documentation Automatique")
+    """Main demonstration function."""
+    print("🌟 Wara9a Demo - Automatic Documentation Framework")
     print("=" * 70)
     
     try:
-        # Démonstration basique
+        # Basic demonstration
         demo_dir, generated_files = demo_basic_generation()
         
-        # Démonstration gestion des dépendances
+        # Dependency management demonstration
         demo_dependency_management()
         
-        # Démonstration templates personnalisés
+        # Custom templates demonstration
         demo_template_customization()
         
-        print(f"\n🎉 Démonstration terminée avec succès !")
-        print(f"📁 Fichiers dans: {demo_dir}")
+        print(f"\n🎉 Demo completed successfully!")
+        print(f"📁 Files in: {demo_dir}")
         
         if generated_files:
-            print(f"\n💡 Pour voir les résultats :")
+            print(f"\n💡 To view results:")
             for file_path in generated_files:
                 print(f"   cat {file_path}")
         
-        # Instructions pour continuer
-        print(f"\n📚 Pour aller plus loin :")
-        print(f"   • Vérifier les dépendances: wara9a deps check")
-        print(f"   • Consulter la documentation: docs/")
-        print(f"   • Exemples: examples/")
+        # Instructions to continue
+        print(f"\n📚 To go further:")
+        print(f"   • Check dependencies: wara9a deps check")
+        print(f"   • View documentation: docs/")
+        print(f"   • Examples: examples/")
         print(f"   • Tests: python -m pytest tests/")
         
     except KeyboardInterrupt:
-        print("\n⛔ Démonstration interrompue par l'utilisateur")
+        print("\n⛔ Demo interrupted by user")
     except Exception as e:
-        print(f"\n❌ Erreur inattendue: {e}")
+        print(f"\n❌ Unexpected error: {e}")
         import traceback
         traceback.print_exc()
         return 1
