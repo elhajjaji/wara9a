@@ -1,1 +1,1 @@
-"""Générateurs pour différents formats de sortie."""
+"""Generators for different output formats."""

@@ -1,33 +1,33 @@
-# 🔄 Configuration Auto-Dépendances - Wara9a
+# 🔄 Auto-Dependencies Configuration - Wara9a
 # 
-# Ce fichier de configuration démontre comment Wara9a installe automatiquement
-# les dépendances nécessaires selon les connecteurs utilisés.
+# This configuration file demonstrates how Wara9a automatically installs
+# required dependencies based on the connectors used.
 
 project:
-  name: "Projet avec Auto-Dépendances"
+  name: "Auto-Dependencies Project"
   version: "2.0.0"
-  description: "Exemple de projet avec installation automatique des dépendances"
-  author: "Équipe Wara9a"
+  description: "Example project with automatic dependency installation"
+  author: "Wara9a Team"
 
-# 📦 Configuration de l'auto-installation
-auto_install_deps: true  # Active l'installation automatique (défaut: true)
+# 📦 Auto-installation configuration
+auto_install_deps: true  # Enable automatic installation (default: true)
 
-# 🔌 Sources utilisant différents connecteurs
-# Chaque connecteur déclenche l'installation de ses dépendances automatiquement
+# 🔌 Sources using different connectors
+# Each connector triggers automatic installation of its dependencies
 sources:
-  # Connecteur GitHub - déclenche l'installation de:
+  # GitHub connector - triggers installation of:
   # - pygithub>=1.58.0
   # - requests>=2.28.0
   - type: github
-    name: "Repository principal"
+    name: "Main repository"
     repo: "elhajjaji/wara9a"
     token: "${GITHUB_TOKEN}"
     max_commits: 30
     enabled: true
 
-  # Connecteur fichiers locaux - aucune dépendance externe
+  # Local files connector - no external dependencies
   - type: local_files
-    name: "Documentation locale"
+    name: "Local documentation"
     path: "."
     patterns:
       - "README.md"
@@ -35,15 +35,15 @@ sources:
       - "docs/**/*.md"
     enabled: true
 
-  # Connecteur Jira (futur) - déclenchera l'installation de:
+  # Jira connector (future) - will trigger installation of:
   # - jira>=3.4.0
   - type: jira
-    name: "Tickets Jira"
-    server: "https://monentreprise.atlassian.net"
+    name: "Jira tickets"
+    server: "https://mycompany.atlassian.net"
     project: "PROJ"
     username: "${JIRA_USER}"
     token: "${JIRA_TOKEN}"
-    enabled: false  # Désactivé pour l'instant
+    enabled: false  # Disabled for now
 
 templates:
   - name: readme
@@ -58,43 +58,43 @@ templates:
     output: "RELEASE_NOTES.md"
     enabled: true
 
-# 📄 Formats de sortie - certains déclenchent des dépendances
+# 📄 Output formats - some trigger dependencies
 output:
   directory: "docs_auto"
   formats:
-    - markdown      # Aucune dépendance supplémentaire
-    - html          # Peut déclencher: markdown>=3.5.0 (optionnel)
-    # - pdf         # Déclencherait: reportlab>=4.0.0, weasyprint>=59.0
+    - markdown      # No additional dependencies
+    - html          # May trigger: markdown>=3.5.0 (optional)
+    # - pdf         # Would trigger: reportlab>=4.0.0, weasyprint>=59.0
   clean_before: true
 
-# Configuration avancée
+# Advanced configuration
 log_level: "INFO"
 parallel: true
 cache_enabled: true
 
-# 💡 Comment ça fonctionne :
+# 💡 How it works:
 #
-# 1. Au lancement, Wara9a analyse cette configuration
-# 2. Il détecte que vous utilisez le connecteur "github"
-# 3. Il vérifie si les dépendances sont installées (pygithub, etc.)
-# 4. Si manquantes, il les installe automatiquement
-# 5. Même principe pour les générateurs selon les formats choisis
+# 1. On startup, Wara9a analyzes this configuration
+# 2. It detects you're using the "github" connector
+# 3. It checks if dependencies are installed (pygithub, etc.)
+# 4. If missing, it installs them automatically
+# 5. Same principle for generators based on chosen formats
 #
-# 🔧 Commandes utiles :
+# 🔧 Useful commands:
 #
-# # Vérifier quelles dépendances seraient nécessaires
+# # Check which dependencies would be needed
 # wara9a deps check
 #
-# # Installer manuellement les dépendances
+# # Manually install dependencies
 # wara9a deps install
 #
-# # Voir tous les connecteurs et leurs dépendances
+# # See all connectors and their dependencies
 # wara9a deps list
 #
-# # Mode simulation (ne fait que montrer ce qui serait installé)
+# # Simulation mode (only shows what would be installed)
 # wara9a deps install --dry-run
 #
-# 🚫 Désactiver l'auto-installation :
+# 🚫 Disable auto-installation:
 #
-# Si vous préférez gérer les dépendances manuellement :
+# If you prefer to manage dependencies manually:
 # auto_install_deps: false

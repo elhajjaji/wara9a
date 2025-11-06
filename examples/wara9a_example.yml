@@ -1,5 +1,5 @@
 # Configuration exemple pour un projet Wara9a
-# Ce fichier peut être utilisé comme base pour vos projets
+# This file can be used as a base for your projects
 
 project:
   name: "Mon Projet Awesome"
@@ -11,7 +11,7 @@ project:
   repository: "https://github.com/mon-org/mon-projet.git"
 
 sources:
-  # Source GitHub - nécessite un token pour les repositories privés
+  # GitHub source - requires a token for private repositories
   - type: github
     name: "Repository principal"
     repo: "mon-org/mon-projet"
@@ -35,7 +35,7 @@ sources:
     enabled: true
 
 templates:
-  # Template README généré
+  # Generated README template
   - name: readme
     output: "README_generated.md"
     enabled: true
@@ -53,15 +53,15 @@ templates:
   # Notes de version
   - name: release_notes
     output: "RELEASE_NOTES.md"
-    enabled: false  # Désactivé par défaut
+    enabled: false  # Disabled by default
     
-  # Template personnalisé (optionnel)
+  # Custom template (optional)
   - name: custom_doc
     output: "docs/generated/project_doc.md"
     template_file: "templates/custom_template.md"
     enabled: false
     variables:
-      custom_var: "valeur personnalisée"
+      custom_var: "custom value"
 
 output:
   directory: "generated_docs"
@@ -76,5 +76,5 @@ parallel: true
 cache_enabled: true
 cache_ttl: 3600  # 1 heure
 
-# Gestion automatique des dépendances
-auto_install_deps: true  # Installe automatiquement les dépendances manquantes
+# Automatic dependency management
+auto_install_deps: true  # Automatically installs missing dependencies

@@ -1,5 +1,5 @@
 """
-Tests pour le gestionnaire de dépendances Wara9a.
+Tests for Wara9a dependency manager.
 """
 
 import pytest
@@ -11,7 +11,7 @@ from wara9a.core.config import create_default_config, GitHubSourceConfig, LocalF
 
 
 class TestDependencyManager:
-    """Tests pour le gestionnaire de dépendances."""
+    """Tests for dependency manager."""
     
     def test_manager_initialization(self):
         """Test initialisation du gestionnaire."""
@@ -23,7 +23,7 @@ class TestDependencyManager:
         assert "github" in manager.CONNECTOR_DEPENDENCIES
     
     def test_check_import_existing_module(self):
-        """Test vérification d'un module existant."""
+        """Test checking an existing module."""
         manager = DependencyManager()
         
         # sys est toujours disponible
@@ -31,7 +31,7 @@ class TestDependencyManager:
         assert manager._check_import("os") is True
     
     def test_check_import_nonexistent_module(self):
-        """Test vérification d'un module inexistant."""
+        """Test verification of a non-existent module."""
         manager = DependencyManager()
         
         assert manager._check_import("nonexistent_module_123456") is False
@@ -74,7 +74,7 @@ class TestDependencyManager:
             assert any("pygithub" in pkg for pkg in missing["packages"])
     
     def test_suggest_manual_install(self):
-        """Test génération des suggestions d'installation manuelle."""
+        """Test generation of manual installation suggestions."""
         config = create_default_config("Test Project")
         config.sources = [
             GitHubSourceConfig(repo="test/repo"),
@@ -90,17 +90,17 @@ class TestDependencyManager:
             assert any("connectors-github" in suggestion for suggestion in suggestions)
     
     def test_check_project_dependencies_no_config(self, tmp_path):
-        """Test vérification sans fichier de configuration."""
+        """Test verification without configuration file."""
         nonexistent_path = tmp_path / "nonexistent.yml"
         
         report = DependencyManager.check_project_dependencies(nonexistent_path)
         
         assert report["status"] == "no_config"
-        assert "non trouvé" in report["message"]
+        assert "not found" in report["message"]
     
     @patch('subprocess.run')
     def test_install_packages_success(self, mock_run):
-        """Test installation réussie de packages."""
+        """Test successful package installation."""
         mock_run.return_value = MagicMock(returncode=0, stdout="Success", stderr="")
         
         manager = DependencyManager(dry_run=False)
@@ -111,7 +111,7 @@ class TestDependencyManager:
     
     @patch('subprocess.run')
     def test_install_packages_failure(self, mock_run):
-        """Test échec d'installation de packages."""
+        """Test failed package installation."""
         mock_run.return_value = MagicMock(returncode=1, stdout="", stderr="Error")
         
         manager = DependencyManager(dry_run=False)
@@ -161,7 +161,7 @@ class TestAutoCheckAndInstall:
     
     @patch('wara9a.core.dependencies.DependencyManager.auto_install_dependencies')
     def test_auto_check_delegates_to_manager(self, mock_auto_install):
-        """Test que la fonction délègue au manager."""
+        """Test that function delegates to manager."""
         mock_auto_install.return_value = True
         
         config = create_default_config("Test Project")

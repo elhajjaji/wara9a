@@ -1,8 +1,8 @@
 """
-Modèles de données Pydantic pour Wara9a.
+Pydantic data models for Wara9a.
 
-Ces modèles définissent la structure normalisée que tous les connecteurs
-doivent produire et que les templates consomment.
+These models define the normalized structure that all connectors
+must produce and that templates consume.
 """
 
 from datetime import datetime
@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class SourceType(str, Enum):
-    """Types de sources supportés."""
+    """Supported source types."""
     GITHUB = "github"
     JIRA = "jira"
     AZURE_DEVOPS = "azure_devops"
@@ -22,7 +22,7 @@ class SourceType(str, Enum):
 
 
 class IssueStatus(str, Enum):
-    """Statuts d'issues normalisés."""
+    """Normalized issue statuses."""
     OPEN = "open"
     CLOSED = "closed"
     IN_PROGRESS = "in_progress"
@@ -30,7 +30,7 @@ class IssueStatus(str, Enum):
 
 
 class IssueType(str, Enum):
-    """Types d'issues normalisés."""
+    """Normalized issue types."""
     BUG = "bug"
     FEATURE = "feature"
     ENHANCEMENT = "enhancement"
@@ -40,7 +40,7 @@ class IssueType(str, Enum):
 
 
 class Author(BaseModel):
-    """Représente un auteur (commit, issue, etc.)."""
+    """Represents an author (commit, issue, etc.)."""
     model_config = ConfigDict(extra="allow")
     
     name: str = Field(description="Nom complet de l'auteur")
@@ -50,16 +50,16 @@ class Author(BaseModel):
 
 
 class Label(BaseModel):
-    """Représente un label/tag."""
+    """Represents a label/tag."""
     model_config = ConfigDict(extra="allow")
     
     name: str = Field(description="Nom du label")
-    color: Optional[str] = Field(default=None, description="Couleur hexadécimale")
+    color: Optional[str] = Field(default=None, description="Hexadecimal color")
     description: Optional[str] = Field(default=None, description="Description")
 
 
 class Commit(BaseModel):
-    """Représente un commit git."""
+    """Represents a git commit."""
     model_config = ConfigDict(extra="allow")
     
     sha: str = Field(description="Hash du commit")
@@ -67,32 +67,32 @@ class Commit(BaseModel):
     author: Author = Field(description="Auteur du commit")
     date: datetime = Field(description="Date du commit")
     url: Optional[str] = Field(default=None, description="URL du commit")
-    files_changed: List[str] = Field(default_factory=list, description="Fichiers modifiés")
-    additions: int = Field(default=0, description="Lignes ajoutées")
-    deletions: int = Field(default=0, description="Lignes supprimées")
+    files_changed: List[str] = Field(default_factory=list, description="Modified files")
+    additions: int = Field(default=0, description="Added lines")
+    deletions: int = Field(default=0, description="Deleted lines")
 
 
 class Issue(BaseModel):
-    """Représente une issue/ticket."""
+    """Represents an issue/ticket."""
     model_config = ConfigDict(extra="allow")
     
     id: str = Field(description="Identifiant unique")
-    title: str = Field(description="Titre de l'issue")
+    title: str = Field(description="Issue title")
     description: Optional[str] = Field(default=None, description="Description")
-    status: IssueStatus = Field(description="Statut actuel")
-    type: IssueType = Field(description="Type d'issue")
-    author: Author = Field(description="Créateur de l'issue")
-    assignee: Optional[Author] = Field(default=None, description="Assigné")
+    status: IssueStatus = Field(description="Current status")
+    type: IssueType = Field(description="Issue type")
+    author: Author = Field(description="Issue creator")
+    assignee: Optional[Author] = Field(default=None, description="Assignee")
     labels: List[Label] = Field(default_factory=list, description="Labels")
-    created_at: datetime = Field(description="Date de création")
-    updated_at: Optional[datetime] = Field(default=None, description="Dernière mise à jour")
-    closed_at: Optional[datetime] = Field(default=None, description="Date de fermeture")
-    url: Optional[str] = Field(default=None, description="URL de l'issue")
+    created_at: datetime = Field(description="Creation date")
+    updated_at: Optional[datetime] = Field(default=None, description="Last update")
+    closed_at: Optional[datetime] = Field(default=None, description="Closing date")
+    url: Optional[str] = Field(default=None, description="Issue URL")
     comments_count: int = Field(default=0, description="Nombre de commentaires")
 
 
 class PullRequest(BaseModel):
-    """Représente une pull/merge request."""
+    """Represents a pull/merge request."""
     model_config = ConfigDict(extra="allow")
     
     id: str = Field(description="Identifiant unique")
@@ -102,32 +102,32 @@ class PullRequest(BaseModel):
     status: str = Field(description="Statut (open, closed, merged)")
     source_branch: str = Field(description="Branche source")
     target_branch: str = Field(description="Branche cible")
-    created_at: datetime = Field(description="Date de création")
+    created_at: datetime = Field(description="Creation date")
     merged_at: Optional[datetime] = Field(default=None, description="Date de merge")
     url: Optional[str] = Field(default=None, description="URL de la PR")
     commits: List[Commit] = Field(default_factory=list, description="Commits inclus")
-    files_changed: int = Field(default=0, description="Nombre de fichiers modifiés")
-    additions: int = Field(default=0, description="Lignes ajoutées")
-    deletions: int = Field(default=0, description="Lignes supprimées")
+    files_changed: int = Field(default=0, description="Number of modified files")
+    additions: int = Field(default=0, description="Added lines")
+    deletions: int = Field(default=0, description="Deleted lines")
 
 
 class Release(BaseModel):
-    """Représente une release/version."""
+    """Represents a release/version."""
     model_config = ConfigDict(extra="allow")
     
     tag: str = Field(description="Tag de version")
     name: str = Field(description="Nom de la release")
     description: Optional[str] = Field(default=None, description="Notes de release")
     author: Author = Field(description="Auteur de la release")
-    created_at: datetime = Field(description="Date de création")
+    created_at: datetime = Field(description="Creation date")
     published_at: Optional[datetime] = Field(default=None, description="Date de publication")
-    is_prerelease: bool = Field(default=False, description="Pré-release")
+    is_prerelease: bool = Field(default=False, description="Pre-release")
     is_draft: bool = Field(default=False, description="Brouillon")
     url: Optional[str] = Field(default=None, description="URL de la release")
 
 
 class Repository(BaseModel):
-    """Représente un dépôt de code."""
+    """Represents a code repository."""
     model_config = ConfigDict(extra="allow")
     
     name: str = Field(description="Nom du repository")
@@ -137,7 +137,7 @@ class Repository(BaseModel):
     default_branch: str = Field(default="main", description="Branche par défaut")
     languages: List[str] = Field(default_factory=list, description="Langages de programmation")
     topics: List[str] = Field(default_factory=list, description="Topics/tags")
-    created_at: Optional[datetime] = Field(default=None, description="Date de création")
+    created_at: Optional[datetime] = Field(default=None, description="Creation date")
     updated_at: Optional[datetime] = Field(default=None, description="Dernière mise à jour")
     stars_count: int = Field(default=0, description="Nombre d'étoiles")
     forks_count: int = Field(default=0, description="Nombre de forks")

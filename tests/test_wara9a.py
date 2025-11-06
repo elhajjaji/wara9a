@@ -18,7 +18,7 @@ class TestConfig:
     """Tests pour la configuration Wara9a."""
     
     def test_create_default_config(self):
-        """Test création d'une configuration par défaut."""
+        """Test creating a default configuration."""
         config = create_default_config("Test Project")
         
         assert config.project.name == "Test Project"
@@ -28,7 +28,7 @@ class TestConfig:
         assert config.output.directory == "output"
     
     def test_config_serialization(self, tmp_path):
-        """Test sérialisation/désérialisation de la configuration."""
+        """Test configuration serialization/deserialization."""
         config = create_default_config("Test Project")
         config_file = tmp_path / "test_wara9a.yml"
         
@@ -43,10 +43,10 @@ class TestConfig:
 
 
 class TestModels:
-    """Tests pour les modèles de données."""
+    """Tests for data models."""
     
     def test_author_model(self):
-        """Test modèle Author."""
+        """Test Author model."""
         author = Author(
             name="John Doe",
             email="john@example.com",
@@ -58,7 +58,7 @@ class TestModels:
         assert author.username == "johndoe"
     
     def test_commit_model(self):
-        """Test modèle Commit."""
+        """Test Commit model."""
         author = Author(name="Jane Doe", email="jane@example.com")
         commit = Commit(
             sha="abc123",
@@ -72,7 +72,7 @@ class TestModels:
         assert commit.author.name == "Jane Doe"
     
     def test_repository_model(self):
-        """Test modèle Repository."""
+        """Test Repository model."""
         repo = Repository(
             name="test-repo",
             full_name="user/test-repo",
@@ -96,7 +96,7 @@ class TestConnectorRegistry:
         assert len(connector_types) >= 1
     
     def test_get_local_connector(self):
-        """Test récupération du connecteur local."""
+        """Test getting local connector."""
         registry = ConnectorRegistry()
         
         connector = registry.get_connector("local_files")
@@ -108,7 +108,7 @@ class TestLocalFilesConnector:
     """Tests pour le connecteur fichiers locaux."""
     
     def test_connector_properties(self):
-        """Test propriétés du connecteur."""
+        """Test connector properties."""
         connector = LocalFilesConnector()
         
         assert connector.connector_type == "local_files"
@@ -135,7 +135,7 @@ class TestTemplateEngine:
     """Tests pour le moteur de templates."""
     
     def test_builtin_templates(self):
-        """Test templates intégrés."""
+        """Test built-in templates."""
         from wara9a.core.template_engine import TemplateEngine
         
         engine = TemplateEngine()

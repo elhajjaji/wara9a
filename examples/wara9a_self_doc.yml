@@ -1,5 +1,5 @@
 # Configuration pour auto-documenter le projet Wara9a
-# Exemple d'usage réel sur le repository officiel
+# Real usage example on official repository
 
 project:
   name: "Wara9a"
@@ -35,7 +35,7 @@ sources:
     enabled: true
 
 templates:
-  # Documentation principale générée
+  # Main generated documentation
   - name: readme
     output: "docs/generated/README_auto.md"
     enabled: true

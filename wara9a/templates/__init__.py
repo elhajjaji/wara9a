@@ -1,1 +1,1 @@
-"""Templates Jinja2 pour la génération de documents."""
+"""Jinja2 templates for document generation."""

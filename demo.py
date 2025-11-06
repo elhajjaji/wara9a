@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Script de démonstration Wara9a.
+Wara9a demonstration script.
 
-Montre les fonctionnalités principales avec un exemple concret.
+Shows main features with a concrete example.
 """
 
 import sys
@@ -18,12 +18,12 @@ from wara9a.core.generator import DocumentGenerator
 
 
 def create_demo_project():
-    """Crée un projet de démonstration temporaire."""
-    print("🚀 Création du projet de démonstration...")
+    """Creates a temporary demonstration project."""
+    print("🚀 Creating demonstration project...")
     
     # Create temporary folder
-    demo_dir = Path(tempfile.mkdtemp(prefix="wara9a_demo_"))
-    print(f"📁 Dossier de démonstration: {demo_dir}")
+    demo_dir = tempfile.mkdtemp(prefix="wara9a_demo_")
+    print(f"📁 Demo directory: {demo_dir}")
     
     # Create example files
     readme_content = """    readme_content = """# Wara9a Demo Project
@@ -94,20 +94,20 @@ AbdERRAHMAN EL HAJJAJI
 
 
 def demo_basic_generation():
-    """Démonstration de la génération basique."""
-    print("\n📝 Démonstration : Génération basique")
+    """Basic generation demonstration."""
+    print("\n📝 Demo: Basic generation")
     
     demo_dir = create_demo_project()
     
     try:
         # Create configuration
-        config = create_default_config("Projet Démonstration Wara9a")
-        config.project.description = "Démonstration des capacités de Wara9a"
-        config.project.author = "Équipe Wara9a"
+        config = create_default_config("Wara9a Demo Project")
+        config.project.description = "Demonstration of Wara9a capabilities"
+        config.project.author = "Wara9a Team"
         
         # Configure local source
         local_source = LocalFilesSourceConfig(
-            name="Fichiers de démonstration",
+            name="Demo files",
             path=str(demo_dir),
             patterns=["README.md", "CHANGELOG.md"]
         )
@@ -122,12 +122,12 @@ def demo_basic_generation():
         generator = DocumentGenerator(project)
         
         # Preview
-        print("\n🔍 Prévisualisation de la génération:")
+        print("\n🔍 Generation preview:")
         preview = generator.preview_generation()
         print(f"  • Projet: {preview['project_name']}")
         print(f"  • Sources: {len(preview['sources'])}")
         print(f"  • Templates: {len(preview['templates'])}")
-        print(f"  • Fichiers estimés: {preview['estimated_files']}")
+        print(f"  • Estimated files: {preview['estimated_files']}")
         
         # Generation
         print("\n⚙️ Generation in progress...")
