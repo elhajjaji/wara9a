@@ -81,14 +81,24 @@ project:
   version: "1.0.0"
 
 sources:
+  # Functional documentation from ticketing
+  - type: jira
+    project: MYPROJ
+    token: ${JIRA_TOKEN}
+    # Extracts: epics, features, user stories
+  
+  # Technical documentation from Git
   - type: github
     repo: my-org/my-repo
     token: ${GITHUB_TOKEN}
+    # Extracts: commits, PRs, code structure
   
 templates:
-  - name: readme
-    output: README.md
-  - name: release_notes
+  - name: functional_spec  # Uses Jira data
+    output: docs/functional-spec.md
+  - name: technical_doc    # Uses GitHub data
+    output: docs/technical.md
+  - name: release_notes    # Combines both sources
     output: CHANGELOG.md
 
 output:
@@ -102,20 +112,31 @@ auto_install_deps: true
 ## 🏗️ Architecture
 
 ```
-Sources → Connectors → Normalized Data → Templates → Documents
+📋 Ticketing (Jira/Azure)  → Functional docs (epics, features) → ┐
+                                                                  ├→ Templates → Documents
+🔧 Git (GitHub/GitLab)     → Technical docs (commits, code)    → ┘
 ```
 
-- **Modular connectors**: GitHub, Jira, Azure DevOps, local files...
-- **Flexible templates**: Jinja2 with built-in template library
+**Dual-source documentation strategy:**
+- **Functional documentation** extracted from ticketing systems (epics, features, user stories)
+- **Technical documentation** extracted from Git repositories and code (commits, PRs, architecture)
+
+**Key features:**
+- **Modular connectors**: Separate connectors for ticketing vs. Git sources
+- **Flexible templates**: Jinja2 templates can combine both data sources
 - **Multi-format**: Markdown, HTML, PDF
 - **Automation**: Git hooks, CI/CD, webhooks
 
 ## 🔌 Available Connectors
 
-- ✅ **GitHub**: Commits, issues, PRs, releases (*auto-install*)
+### 📋 Functional Documentation (Ticketing Systems)
+- 🔜 **Jira**: Epics, features, user stories, sprints (*auto-install*)
+- 🔜 **Azure DevOps**: Work items, features, requirements (*auto-install*)
+
+### 🔧 Technical Documentation (Git & Code)
+- ✅ **GitHub**: Commits, PRs, releases, code structure (*auto-install*)
+- 🔜 **GitLab**: Commits, merge requests, pipelines (*auto-install*)
 - ✅ **Local Files**: README, CHANGELOG, docs/ (*built-in*)
-- 🔜 **Jira**: Tickets, sprints, projects (*auto-install*)
-- 🔜 **Azure DevOps**: Work items, builds, releases (*auto-install*)
 
 > **Note**: Connector dependencies are automatically installed based on your configuration
 

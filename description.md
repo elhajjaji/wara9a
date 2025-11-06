@@ -4,14 +4,31 @@
 
 ## 🎯 Philosophy
 
-Wara<u>9</u>a starts from a simple principle: **your project already contains all its documentation**, it's just scattered between your commits, tickets, APIs and code. Wara<u>9</u>a gathers this information and transforms it into professional documents, automatically.
+Wara<u>9</u>a starts from a simple principle: **your project already contains all its documentation**, it's just scattered across different sources. Wara<u>9</u>a gathers this information and transforms it into professional documents, automatically.
+
+### 📊 Dual Data Sources Strategy
+
+**Wara<u>9</u>a** intelligently combines two complementary documentation sources:
+
+1. **📋 Functional Documentation** → Extracted from **ticketing systems**
+   - Epics, features, user stories (Jira, Azure DevOps)
+   - Business requirements and specifications
+   - Sprint planning and project roadmap
+   - User-facing features and capabilities
+
+2. **🔧 Technical Documentation** → Extracted from **Git repositories & code**
+   - Commits history and code changes (GitHub, GitLab)
+   - Pull requests and code reviews
+   - Technical architecture from code structure
+   - API documentation from source code
 
 ---
 
 ## ✨ Main Features
 
 ### 🔌 Plug & Play Connectors
-- **Connect your sources**: Azure DevOps, Jira, GitHub, GitLab, or any API
+- **Ticketing connectors**: Jira, Azure DevOps for functional documentation (epics, features, stories)
+- **Git connectors**: GitHub, GitLab for technical documentation (commits, PRs, code)
 - **Universal format**: All connectors speak the same language (JSON/YAML)
 - **Extensible**: Create your own connectors in just a few lines of Python
 - **Community marketplace**: Share and reuse connectors created by the community
@@ -23,14 +40,28 @@ project:
   name: "My Awesome Project"
   
 sources:
-  - type: github
-    repo: my-org/my-repo
+  # Functional documentation from ticketing
   - type: jira
     project: PROJ
+    # Extracts: epics, features, user stories
+  
+  - type: azure_devops
+    project: MyProject
+    # Extracts: work items, features, requirements
+    
+  # Technical documentation from Git/code
+  - type: github
+    repo: my-org/my-repo
+    # Extracts: commits, PRs, code structure
+    
+  - type: gitlab
+    project: my-project
+    # Extracts: commits, merge requests, pipelines
     
 templates:
-  - technical_doc
-  - release_notes
+  - functional_spec    # Uses ticketing data
+  - technical_doc      # Uses Git/code data
+  - release_notes      # Combines both sources
   
 output:
   formats: [pdf, html, markdown]
@@ -60,14 +91,18 @@ output:
 
 ### Modular Principle
 ```
-Sources → Connectors → Normalized Data → Templates → Documents
+Ticketing Systems (Jira/Azure DevOps) → Functional Data → ┐
+                                                           ├→ Templates → Documents
+Git Repositories (GitHub/GitLab)      → Technical Data  → ┘
 ```
 
 Inspired by dbt and the best Python frameworks, Wara<u>9</u>a adopts a clear architecture:
 
-1. **Connectors**: Independent Python modules that extract data
+1. **Connectors**: 
+   - Ticketing connectors extract functional documentation (epics, features, stories)
+   - Git connectors extract technical documentation (commits, PRs, code)
 2. **Normalizer**: Transforms all data into unified format
-3. **Template engine**: Jinja2 for maximum flexibility
+3. **Template engine**: Jinja2 combines both data sources for maximum flexibility
 4. **Generators**: PDF (ReportLab), HTML, Markdown exports
 
 ### Extensibility
@@ -126,11 +161,12 @@ wara9a setup-hooks  # Configure Git hooks automatically
 
 ## 🌟 Use Cases
 
-- **Releases**: Release notes automatically generated at each deployment
-- **Audits**: Complete technical documentation for compliance
-- **Onboarding**: Up-to-date guides for new developers
-- **Reporting**: Sprint/project reports for stakeholders
-- **Knowledge Base**: Technical wiki synchronized with code
+- **Functional Specifications**: Generated from Jira epics and features for product documentation
+- **Technical Documentation**: Extracted from Git commits and code structure for developer guides
+- **Release Notes**: Combines ticketing stories and Git commits for complete changelog
+- **Project Reports**: Sprint reports from Jira/Azure DevOps for stakeholders
+- **Audit Documentation**: Complete traceability from requirements (tickets) to implementation (code)
+- **Onboarding Guides**: Up-to-date documentation combining business context and technical details
 
 ---
 
