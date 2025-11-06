@@ -1,0 +1,1 @@
+"""Générateurs pour différents formats de sortie."""

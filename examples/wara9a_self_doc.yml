@@ -1,0 +1,72 @@
+# Configuration pour auto-documenter le projet Wara9a
+# Exemple d'usage réel sur le repository officiel
+
+project:
+  name: "Wara9a"
+  version: "1.0.0"
+  description: "Documentation IT automatique et intelligente"
+  author: "elhajjaji"
+  license: "MIT"
+  homepage: "https://github.com/elhajjaji/wara9a"
+  repository: "https://github.com/elhajjaji/wara9a.git"
+
+sources:
+  # Repository GitHub principal
+  - type: github
+    name: "Wara9a Repository"
+    repo: "elhajjaji/wara9a"
+    # token: "${GITHUB_TOKEN}"  # Optionnel pour les repos publics
+    branch: "main"
+    max_commits: 100
+    max_issues: 50
+    include_prs: true
+    enabled: true
+
+  # Documentation locale
+  - type: local_files
+    name: "Local Documentation"
+    path: "."
+    patterns:
+      - "README.md"
+      - "CONTRIBUTING.md"
+      - "docs/**/*.md"
+      - "examples/**/*.yml"
+    encoding: "utf-8"
+    enabled: true
+
+templates:
+  # Documentation principale générée
+  - name: readme
+    output: "docs/generated/README_auto.md"
+    enabled: true
+    variables:
+      show_badges: true
+      include_toc: true
+      include_installation: true
+      
+  # Changelog automatique depuis les commits
+  - name: changelog
+    output: "docs/generated/CHANGELOG_auto.md"
+    enabled: true
+    variables:
+      group_by_type: true
+      include_breaking_changes: true
+      
+  # Documentation de l'API
+  - name: api_doc
+    output: "docs/generated/API.md"
+    template_file: "templates/api_template.md"
+    enabled: false
+
+output:
+  directory: "docs/generated"
+  formats:
+    - markdown
+    - html
+  clean_before: true
+
+# Configuration
+log_level: "INFO"
+parallel: true
+cache_enabled: true
+auto_install_deps: true

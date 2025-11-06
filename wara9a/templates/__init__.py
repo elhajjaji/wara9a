@@ -1,0 +1,1 @@
+"""Templates Jinja2 pour la génération de documents."""

@@ -1,0 +1,80 @@
+# Configuration exemple pour un projet Wara9a
+# Ce fichier peut être utilisé comme base pour vos projets
+
+project:
+  name: "Mon Projet Awesome"
+  version: "1.0.0"
+  description: "Un projet incroyable avec documentation automatique"
+  author: "Mon Nom"
+  license: "MIT"
+  homepage: "https://github.com/mon-org/mon-projet"
+  repository: "https://github.com/mon-org/mon-projet.git"
+
+sources:
+  # Source GitHub - nécessite un token pour les repositories privés
+  - type: github
+    name: "Repository principal"
+    repo: "mon-org/mon-projet"
+    token: "${GITHUB_TOKEN}"  # Variable d'environnement
+    branch: "main"
+    max_commits: 50
+    max_issues: 100
+    include_forks: false
+    enabled: true
+
+  # Source fichiers locaux - toujours disponible
+  - type: local_files
+    name: "Documentation locale"
+    path: "."
+    patterns:
+      - "README.md"
+      - "CHANGELOG.md" 
+      - "docs/**/*.md"
+      - "*.txt"
+    encoding: "utf-8"
+    enabled: true
+
+templates:
+  # Template README généré
+  - name: readme
+    output: "README_generated.md"
+    enabled: true
+    variables:
+      show_badges: true
+      include_toc: true
+      
+  # Changelog automatique
+  - name: changelog
+    output: "CHANGELOG_auto.md"
+    enabled: true
+    variables:
+      group_by_type: true
+      
+  # Notes de version
+  - name: release_notes
+    output: "RELEASE_NOTES.md"
+    enabled: false  # Désactivé par défaut
+    
+  # Template personnalisé (optionnel)
+  - name: custom_doc
+    output: "docs/generated/project_doc.md"
+    template_file: "templates/custom_template.md"
+    enabled: false
+    variables:
+      custom_var: "valeur personnalisée"
+
+output:
+  directory: "generated_docs"
+  formats:
+    - markdown
+    - html
+  clean_before: true
+
+# Configuration globale
+log_level: "INFO"
+parallel: true
+cache_enabled: true
+cache_ttl: 3600  # 1 heure
+
+# Gestion automatique des dépendances
+auto_install_deps: true  # Installe automatiquement les dépendances manquantes

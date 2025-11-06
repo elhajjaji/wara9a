@@ -1,0 +1,1 @@
+"""Interface CLI de Wara9a."""

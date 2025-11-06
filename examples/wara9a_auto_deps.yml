@@ -1,0 +1,100 @@
+# 🔄 Configuration Auto-Dépendances - Wara9a
+# 
+# Ce fichier de configuration démontre comment Wara9a installe automatiquement
+# les dépendances nécessaires selon les connecteurs utilisés.
+
+project:
+  name: "Projet avec Auto-Dépendances"
+  version: "2.0.0"
+  description: "Exemple de projet avec installation automatique des dépendances"
+  author: "Équipe Wara9a"
+
+# 📦 Configuration de l'auto-installation
+auto_install_deps: true  # Active l'installation automatique (défaut: true)
+
+# 🔌 Sources utilisant différents connecteurs
+# Chaque connecteur déclenche l'installation de ses dépendances automatiquement
+sources:
+  # Connecteur GitHub - déclenche l'installation de:
+  # - pygithub>=1.58.0
+  # - requests>=2.28.0
+  - type: github
+    name: "Repository principal"
+    repo: "elhajjaji/wara9a"
+    token: "${GITHUB_TOKEN}"
+    max_commits: 30
+    enabled: true
+
+  # Connecteur fichiers locaux - aucune dépendance externe
+  - type: local_files
+    name: "Documentation locale"
+    path: "."
+    patterns:
+      - "README.md"
+      - "CHANGELOG.md"
+      - "docs/**/*.md"
+    enabled: true
+
+  # Connecteur Jira (futur) - déclenchera l'installation de:
+  # - jira>=3.4.0
+  - type: jira
+    name: "Tickets Jira"
+    server: "https://monentreprise.atlassian.net"
+    project: "PROJ"
+    username: "${JIRA_USER}"
+    token: "${JIRA_TOKEN}"
+    enabled: false  # Désactivé pour l'instant
+
+templates:
+  - name: readme
+    output: "README_auto.md"
+    enabled: true
+    
+  - name: changelog
+    output: "CHANGELOG_auto.md"
+    enabled: true
+    
+  - name: release_notes
+    output: "RELEASE_NOTES.md"
+    enabled: true
+
+# 📄 Formats de sortie - certains déclenchent des dépendances
+output:
+  directory: "docs_auto"
+  formats:
+    - markdown      # Aucune dépendance supplémentaire
+    - html          # Peut déclencher: markdown>=3.5.0 (optionnel)
+    # - pdf         # Déclencherait: reportlab>=4.0.0, weasyprint>=59.0
+  clean_before: true
+
+# Configuration avancée
+log_level: "INFO"
+parallel: true
+cache_enabled: true
+
+# 💡 Comment ça fonctionne :
+#
+# 1. Au lancement, Wara9a analyse cette configuration
+# 2. Il détecte que vous utilisez le connecteur "github"
+# 3. Il vérifie si les dépendances sont installées (pygithub, etc.)
+# 4. Si manquantes, il les installe automatiquement
+# 5. Même principe pour les générateurs selon les formats choisis
+#
+# 🔧 Commandes utiles :
+#
+# # Vérifier quelles dépendances seraient nécessaires
+# wara9a deps check
+#
+# # Installer manuellement les dépendances
+# wara9a deps install
+#
+# # Voir tous les connecteurs et leurs dépendances
+# wara9a deps list
+#
+# # Mode simulation (ne fait que montrer ce qui serait installé)
+# wara9a deps install --dry-run
+#
+# 🚫 Désactiver l'auto-installation :
+#
+# Si vous préférez gérer les dépendances manuellement :
+# auto_install_deps: false

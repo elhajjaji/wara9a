@@ -1,0 +1,103 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wara9a"
+version = "1.0.0"
+description = "Documentation IT automatique et intelligente"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "elhajjaji" },
+]
+keywords = ["documentation", "automation", "devops", "git", "jira"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Documentation",
+    "Topic :: Software Development :: Documentation",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "click>=8.0.0",
+    "pydantic>=2.0.0",
+    "pyyaml>=6.0",
+    "jinja2>=3.1.0",
+    "requests>=2.28.0",
+    "rich>=13.0.0",
+    "python-dateutil>=2.8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=22.0.0",
+    "isort>=5.10.0",
+    "flake8>=5.0.0",
+    "mypy>=1.0.0",
+    "pre-commit>=2.20.0",
+]
+# Connecteurs optionnels - installés automatiquement selon la config
+connectors-github = [
+    "pygithub>=1.58.0",
+]
+connectors-jira = [
+    "jira>=3.4.0",
+]
+connectors-azure = [
+    "azure-devops>=7.0.0",
+]
+generators-pdf = [
+    "reportlab>=4.0.0",
+    "weasyprint>=59.0",
+]
+generators-advanced = [
+    "markdown>=3.5.0",
+    "python-docx>=0.8.11",
+]
+all = [
+    "wara9a[dev,connectors-github,connectors-jira,connectors-azure,generators-pdf,generators-advanced]",
+]
+
+[project.urls]
+Homepage = "https://github.com/elhajjaji/wara9a"
+Documentation = "https://github.com/elhajjaji/wara9a/wiki"
+Repository = "https://github.com/elhajjaji/wara9a.git"
+Issues = "https://github.com/elhajjaji/wara9a/issues"
+
+[project.scripts]
+wara9a = "wara9a.cli.main:main"
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--cov=wara9a",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+]
