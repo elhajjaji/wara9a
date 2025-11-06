@@ -133,16 +133,16 @@ class Wara9aConfig(BaseModel):
             yaml.dump(data, f, default_flow_style=False, allow_unicode=True, indent=2)
     
     def get_enabled_sources(self) -> List[SourceConfig]:
-        """Retourne les sources activées."""
+        """Returns enabled sources."""
         return [source for source in self.sources if source.enabled]
     
     def get_enabled_templates(self) -> List[TemplateConfig]:
-        """Retourne les templates activés."""
+        """Returns enabled templates."""
         return [template for template in self.templates if template.enabled]
 
 
 def create_default_config(project_name: str, output_dir: str = "output") -> Wara9aConfig:
-    """Crée une configuration par défaut."""
+    """Creates a default configuration."""
     return Wara9aConfig(
         project=ProjectConfig(
             name=project_name,

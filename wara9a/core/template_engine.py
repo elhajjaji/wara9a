@@ -1,8 +1,8 @@
 """
-Moteur de templates basé sur Jinja2 pour Wara9a.
+Jinja2-based template engine for Wara9a.
 
-Gère le rendu des templates avec des filtres personnalisés
-et un système de templates intégrés.
+Handles template rendering with custom filters
+and built-in template system.
 """
 
 import logging
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 class BuiltinTemplateLoader(BaseLoader):
-    """Loader pour les templates intégrés de Wara9a."""
+    """Loader for Wara9a built-in templates."""
     
     def __init__(self):
         # Built-in templates (will be extended later)
@@ -53,12 +53,12 @@ class BuiltinTemplateLoader(BaseLoader):
 
 ## 📊 Statistiques du projet
 
-- **Commits récents**: {{ data.commits | length }}
+- **Recent commits**: {{ data.commits | length }}
 - **Issues ouvertes**: {{ open_issues | length }}
 {% if latest_release %}
-- **Dernière version**: [{{ latest_release.tag }}]({{ latest_release.url }}) ({{ latest_release.created_at | format_date }})
+- **Latest version**: [{{ latest_release.tag }}]({{ latest_release.url }}) ({{ latest_release.created_at | format_date }})
 {% endif %}
-- **Langage principal**: {{ data.repository.languages | first | default("Non détecté") }}
+- **Main language**: {{ data.repository.languages | first | default("Not detected") }}
 
 {% if data.repository.topics %}
 ## 🏷️ Topics
@@ -93,7 +93,7 @@ class BuiltinTemplateLoader(BaseLoader):
     def _changelog_template(self) -> str:
         return """# Changelog
 
-Toutes les modifications notables de ce projet sont documentées dans ce fichier.
+All notable changes to this project are documented in this file.
 
 {% for release in data.releases | sort(attribute='created_at', reverse=true) %}
 ## [{{ release.tag }}] - {{ release.created_at | format_date }}
@@ -165,13 +165,13 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 ## Statistiques
 
 - **{{ release_commits | length }}** commits inclus
-- **{{ release_commits | sum(attribute='additions') }}** lignes ajoutées
-- **{{ release_commits | sum(attribute='deletions') }}** lignes supprimées
-- **{{ release_commits | map(attribute='files_changed') | sum | length }}** fichiers modifiés
+- **{{ release_commits | sum(attribute='additions') }}** lines added
+- **{{ release_commits | sum(attribute='deletions') }}** lines removed
+- **{{ release_commits | map(attribute='files_changed') | sum | length }}** files modified
 {% endif %}
 
 {% else %}
-*Aucune release trouvée*
+*No releases found*
 {% endif %}
 
 ---
@@ -182,18 +182,18 @@ Toutes les modifications notables de ce projet sont documentées dans ce fichier
 
 class TemplateEngine:
     """
-    Moteur de rendu des templates pour Wara9a.
+    Template rendering engine for Wara9a.
     
-    Utilise Jinja2 avec des filtres personnalisés et un système
-    de templates intégrés + templates utilisateur personnalisés.
+    Uses Jinja2 with custom filters and a system
+    of built-in templates + custom user templates.
     """
     
     def __init__(self, template_dirs: Optional[List[Path]] = None):
         """
-        Initialise le moteur de templates.
+        Initializes template engine.
         
         Args:
-            template_dirs: Dossiers contenant les templates personnalisés
+            template_dirs: Directories containing custom templates
         """
         self.template_dirs = template_dirs or []
         
@@ -225,11 +225,11 @@ class TemplateEngine:
     def render(self, template_name: str, context: Dict[str, Any], 
               template_config: Optional[TemplateConfig] = None) -> str:
         """
-        Rend un template avec le contexte donné.
+        Renders a template with given context.
         
         Args:
-            template_name: Nom du template à rendre
-            context: Variables à passer au template
+            template_name: Name of template to render
+            context: Variables to pass to template
             template_config: Configuration du template (optionnel)
             
         Returns:
@@ -257,18 +257,18 @@ class TemplateEngine:
             # Rendre le template
             rendered = template.render(**context)
             
-            logger.debug(f"Template {template_name} rendu avec succès")
+            logger.debug(f"Template {template_name} rendered successfully")
             return rendered
             
         except TemplateNotFound as e:
-            logger.error(f"Template non trouvé: {e}")
+            logger.error(f"Template not found: {e}")
             raise
         except Exception as e:
             logger.error(f"Erreur lors du rendu du template {template_name}: {e}")
             raise
     
     def has_template(self, template_name: str) -> bool:
-        """Vérifie si un template existe."""
+        """Checks if a template exists."""
         try:
             self.env.get_template(template_name)
             return True
@@ -276,12 +276,12 @@ class TemplateEngine:
             return False
     
     def list_builtin_templates(self) -> List[str]:
-        """Retourne la liste des templates intégrés."""
+        """Returns list of built-in templates."""
         builtin_loader = BuiltinTemplateLoader()
         return builtin_loader.list_templates()
     
     def _register_filters(self) -> None:
-        """Enregistre les filtres Jinja2 personnalisés."""
+        """Registers custom Jinja2 filters."""
         
         def format_date(date: datetime, format_str: str = "%d/%m/%Y") -> str:
             """Formate une date."""
@@ -296,7 +296,7 @@ class TemplateEngine:
             return date.strftime(format_str)
         
         def time_ago(date: datetime) -> str:
-            """Retourne le temps écoulé depuis une date."""
+            """Returns elapsed time since a date."""
             if not date:
                 return "Date inconnue"
             
@@ -312,7 +312,7 @@ class TemplateEngine:
                 minutes = delta.seconds // 60
                 return f"il y a {minutes} minute{'s' if minutes > 1 else ''}"
             else:
-                return "à l'instant"
+                return "just now"
         
         def clean_commit_message(message: str) -> str:
             """Nettoie un message de commit."""
@@ -328,7 +328,7 @@ class TemplateEngine:
             return text[:length - len(end)] + end
         
         def select_since_release(commits: List[Dict], release: Dict) -> List[Dict]:
-            """Sélectionne les commits depuis une release."""
+            """Selects commits since a release."""
             if not release or not commits:
                 return []
             
@@ -339,7 +339,7 @@ class TemplateEngine:
             return [c for c in commits if c.get('date', datetime.min) >= release_date]
         
         def select_since_previous_release(commits: List[Dict], current_release: Dict) -> List[Dict]:
-            """Sélectionne les commits depuis la release précédente."""
+            """Selects commits since previous release."""
             # For now, return all commits from the last week
             if not commits:
                 return []

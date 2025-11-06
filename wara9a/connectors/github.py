@@ -1,9 +1,9 @@
 """
 Connecteur GitHub pour Wara9a.
 
-Collecte les données depuis l'API GitHub REST v4 :
+Collects data from GitHub REST API v4:
 - Repository metadata
-- Commits récents
+- Recent commits
 - Issues et pull requests  
 - Releases
 """
@@ -35,7 +35,7 @@ class GitHubConnector(ConnectorBase):
     """
     Connecteur pour l'API GitHub REST.
     
-    Collecte les données d'un repository GitHub via l'API REST v4.
+    Collects data from a GitHub repository via REST API v4.
     Supporte l'authentification par token pour augmenter les limites de taux.
     """
     
@@ -74,26 +74,26 @@ class GitHubConnector(ConnectorBase):
         
         # Valider le format du repo
         if '/' not in config.repo or len(config.repo.split('/')) != 2:
-            errors.append("Le format du repo doit être 'owner/repo'")
+            errors.append("Repo format must be 'owner/repo'")
         
         # Validate numeric limits
         if hasattr(config, 'max_commits') and config.max_commits < 1:
-            errors.append("max_commits doit être >= 1")
+            errors.append("max_commits must be >= 1")
         
         if hasattr(config, 'max_issues') and config.max_issues < 1:
-            errors.append("max_issues doit être >= 1")
+            errors.append("max_issues must be >= 1")
         
         return errors
     
     def collect(self, config: SourceConfig) -> ProjectData:
         """
-        Collecte les données depuis GitHub.
+        Collects data from GitHub.
         
         Args:
             config: Configuration GitHub (GitHubSourceConfig)
             
         Returns:
-            Données normalisées du projet
+            Normalized project data
             
         Raises:
             ConnectorError: Si erreur lors de la collecte
@@ -133,7 +133,7 @@ class GitHubConnector(ConnectorBase):
                 source_config=github_config.model_dump()
             )
             
-            logger.info(f"Collecte GitHub terminée: {len(commits)} commits, "
+            logger.info(f"GitHub collection completed: {len(commits)} commits, "
                        f"{len(issues)} issues, {len(pull_requests)} PRs, "
                        f"{len(releases)} releases")
             
@@ -145,7 +145,7 @@ class GitHubConnector(ConnectorBase):
             raise ConnectorError(f"Erreur lors de la collecte GitHub: {e}")
     
     def _create_session(self) -> requests.Session:
-        """Crée une session HTTP avec retry automatique."""
+        """Creates HTTP session with automatic retry."""
         session = requests.Session()
         
         # Configuration retry
@@ -169,7 +169,7 @@ class GitHubConnector(ConnectorBase):
         return session
     
     def _get_repository(self, config: GitHubSourceConfig) -> Repository:
-        """Collecte les métadonnées du repository."""
+        """Collects repository metadata."""
         url = f"{self.BASE_URL}/repos/{config.repo}"
         response = self._make_request(url)
         
@@ -199,7 +199,7 @@ class GitHubConnector(ConnectorBase):
         return list(languages_data.keys())
     
     def _get_commits(self, config: GitHubSourceConfig) -> List[Commit]:
-        """Collecte les commits récents."""
+        """Collects recent commits."""
         url = f"{self.BASE_URL}/repos/{config.repo}/commits"
         params = {
             'per_page': min(config.max_commits or 100, 100),
@@ -232,7 +232,7 @@ class GitHubConnector(ConnectorBase):
         return commits
     
     def _enrich_commit_details(self, config: GitHubSourceConfig, commit: Commit) -> None:
-        """Enrichit un commit avec les détails de fichiers modifiés."""
+        """Enriches a commit with modified file details."""
         try:
             url = f"{self.BASE_URL}/repos/{config.repo}/commits/{commit.sha}"
             response = self._make_request(url)
@@ -346,7 +346,7 @@ class GitHubConnector(ConnectorBase):
         return releases
     
     def _make_request(self, url: str, params: Optional[Dict[str, Any]] = None) -> requests.Response:
-        """Effectue une requête HTTP avec gestion d'erreurs."""
+        """Performs HTTP request with error handling."""
         try:
             response = self.session.get(url, params=params, timeout=30)
             response.raise_for_status()
@@ -355,23 +355,23 @@ class GitHubConnector(ConnectorBase):
             if 'X-RateLimit-Remaining' in response.headers:
                 remaining = int(response.headers['X-RateLimit-Remaining'])
                 if remaining < 10:
-                    logger.warning(f"Limite de taux GitHub basse: {remaining} requêtes restantes")
+                    logger.warning(f"GitHub rate limit low: {remaining} requests remaining")
             
             return response
             
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404:
-                raise ConnectorError(f"Repository non trouvé ou non accessible: {url}")
+                raise ConnectorError(f"Repository not found or not accessible: {url}")
             elif e.response.status_code == 403:
-                raise ConnectorError("Accès refusé. Vérifiez votre token GitHub.")
+                raise ConnectorError("Access denied. Check your GitHub token.")
             elif e.response.status_code == 401:
-                raise ConnectorError("Authentification échouée. Token GitHub invalide.")
+                raise ConnectorError("Authentication failed. Invalid GitHub token.")
             else:
                 raise ConnectorConnectionError(f"Erreur HTTP {e.response.status_code}: {url}")
         except requests.exceptions.Timeout:
-            raise ConnectorConnectionError(f"Timeout lors de la requête: {url}")
+            raise ConnectorConnectionError(f"Timeout during request: {url}")
         except requests.exceptions.RequestException as e:
-            raise ConnectorConnectionError(f"Erreur de requête: {e}")
+            raise ConnectorConnectionError(f"Request error: {e}")
     
     def _parse_github_date(self, date_str: Optional[str]) -> Optional[datetime]:
         """Parse une date GitHub au format ISO 8601."""
@@ -420,7 +420,7 @@ class GitHubConnector(ConnectorBase):
         ]
     
     def _guess_issue_type(self, issue_data: Dict[str, Any]) -> IssueType:
-        """Devine le type d'issue basé sur les labels et le titre."""
+        """Guesses issue type based on labels and title."""
         labels = [label['name'].lower() for label in issue_data.get('labels', [])]
         title_lower = issue_data['title'].lower()
         

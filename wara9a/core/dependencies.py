@@ -1,8 +1,8 @@
 """
-Gestionnaire automatique des dépendances Wara9a.
+Automatic dependency manager for Wara9a.
 
-Installe automatiquement les dépendances nécessaires selon
-les connecteurs et générateurs utilisés dans la configuration.
+Automatically installs required dependencies according to
+connectors and generators used in configuration.
 """
 
 import subprocess
@@ -20,10 +20,10 @@ logger = logging.getLogger(__name__)
 
 class DependencyManager:
     """
-    Gestionnaire des dépendances automatiques.
+    Automatic dependency manager.
     
     Analyse la configuration et installe automatiquement
-    les dépendances nécessaires pour les connecteurs utilisés.
+    required dependencies for used connectors.
     """
     
     # Mapping of connectors to their dependencies
@@ -66,10 +66,10 @@ class DependencyManager:
     
     def __init__(self, auto_install: bool = True, dry_run: bool = False):
         """
-        Initialise le gestionnaire de dépendances.
+        Initializes dependency manager.
         
         Args:
-            auto_install: Installe automatiquement les dépendances manquantes
+            auto_install: Automatically installs missing dependencies
             dry_run: Mode simulation (n'installe rien)
         """
         self.auto_install = auto_install
@@ -78,13 +78,13 @@ class DependencyManager:
     
     def check_config_dependencies(self, config: Wara9aConfig) -> Dict[str, List[str]]:
         """
-        Vérifie les dépendances nécessaires pour une configuration.
+        Checks required dependencies for a configuration.
         
         Args:
             config: Configuration Wara9a
             
         Returns:
-            Dictionnaire des dépendances manquantes par catégorie
+            Dictionary of missing dependencies by category
         """
         missing = {
             "connectors": [],
@@ -125,18 +125,18 @@ class DependencyManager:
     
     def auto_install_dependencies(self, config: Wara9aConfig) -> bool:
         """
-        Installe automatiquement les dépendances manquantes.
+        Automatically installs missing dependencies.
         
         Args:
             config: Configuration Wara9a
             
         Returns:
-            True si toutes les dépendances sont satisfaites
+            True if all dependencies are satisfied
         """
         missing = self.check_config_dependencies(config)
         
         if not any(missing.values()):
-            logger.info("✅ Toutes les dépendances sont déjà installées")
+            logger.info("✅ All dependencies are already installed")
             return True
         
         logger.info("🔍 Dépendances manquantes détectées:")
@@ -310,7 +310,7 @@ def auto_check_and_install(config: Optional[Wara9aConfig] = None,
         auto_install: Installer automatiquement les dépendances manquantes
         
     Returns:
-        True si toutes les dépendances sont satisfaites
+        True if all dependencies are satisfied
     """
     if config is None:
         if config_path is None:

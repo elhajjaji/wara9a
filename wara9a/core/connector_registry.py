@@ -43,7 +43,7 @@ class ConnectorRegistry:
             ValueError: If connector is already registered or invalid
         """
         if not issubclass(connector_class, ConnectorBase):
-            raise ValueError(f"{connector_class} doit hériter de ConnectorBase")
+            raise ValueError(f"{connector_class} must inherit from ConnectorBase")
         
         # Create temporary instance to get type
         temp_instance = connector_class()
@@ -58,7 +58,7 @@ class ConnectorRegistry:
         # Invalider l'instance en cache
         self._instances.pop(connector_type, None)
         
-        logger.info(f"Connecteur enregistré: {connector_type} ({connector_class.__name__})")
+        logger.info(f"Connector registered: {connector_type} ({connector_class.__name__})")
     
     def get_connector(self, connector_type: str) -> ConnectorBase:
         """
@@ -71,7 +71,7 @@ class ConnectorRegistry:
             Instance du connecteur
             
         Raises:
-            ValueError: Si le connecteur n'est pas trouvé
+            ValueError: If connector is not found
         """
         if connector_type not in self._connectors:
             # Essayer de charger le connecteur dynamiquement
@@ -80,7 +80,7 @@ class ConnectorRegistry:
         if connector_type not in self._connectors:
             available = list(self._connectors.keys())
             raise ValueError(
-                f"Connecteur non trouvé: {connector_type}. "
+                f"Connector not found: {connector_type}. "
                 f"Connecteurs disponibles: {available}"
             )
         
@@ -92,7 +92,7 @@ class ConnectorRegistry:
         return self._instances[connector_type]
     
     def has_connector(self, connector_type: str) -> bool:
-        """Vérifie si un connecteur est disponible."""
+        """Checks if a connector is available."""
         if connector_type in self._connectors:
             return True
         
@@ -126,7 +126,7 @@ class ConnectorRegistry:
         }
     
     def _load_builtin_connectors(self) -> None:
-        """Charge automatiquement tous les connecteurs intégrés."""
+        """Automatically loads all built-in connectors."""
         try:
             import wara9a.connectors
             
@@ -141,10 +141,10 @@ class ConnectorRegistry:
                         logger.error(f"Erreur lors du chargement du module {name}: {e}")
                         
         except ImportError:
-            logger.warning("Package wara9a.connectors non trouvé")
+            logger.warning("Package wara9a.connectors not found")
     
     def _register_connectors_from_module(self, module) -> None:
-        """Enregistre tous les connecteurs trouvés dans un module."""
+        """Registers all connectors found in a module."""
         for attr_name in dir(module):
             attr = getattr(module, attr_name)
             
@@ -170,9 +170,9 @@ class ConnectorRegistry:
         try:
             module = importlib.import_module(module_name)
             self._register_connectors_from_module(module)
-            logger.info(f"Connecteur {connector_type} chargé dynamiquement")
+            logger.info(f"Connector {connector_type} loaded dynamically")
         except ImportError:
-            logger.debug(f"Module {module_name} non trouvé")
+            logger.debug(f"Module {module_name} not found")
         except Exception as e:
             logger.error(f"Erreur lors du chargement dynamique de {module_name}: {e}")
     
@@ -186,7 +186,7 @@ class ConnectorRegistry:
         try:
             module = importlib.import_module(module_path)
             self._register_connectors_from_module(module)
-            logger.info(f"Plugin connecteur chargé: {module_path}")
+            logger.info(f"Connector plugin loaded: {module_path}")
         except Exception as e:
             logger.error(f"Erreur lors du chargement du plugin {module_path}: {e}")
             raise

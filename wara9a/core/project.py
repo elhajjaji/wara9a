@@ -86,15 +86,15 @@ class Project:
                    project_dir: Optional[Path] = None,
                    config_dict: Optional[Dict[str, Any]] = None) -> "Project":
         """
-        Crée un nouveau projet Wara9a avec une configuration par défaut.
+        Creates a new Wara9a project with default configuration.
         
         Args:
             project_name: Nom du projet
-            project_dir: Dossier du projet (défaut: répertoire courant)
-            config_dict: Configuration personnalisée à merger
+            project_dir: Project directory (default: current directory)
+            config_dict: Custom configuration to merge
         
         Returns:
-            Instance Project configurée
+            Configured Project instance
         """
         if project_dir is None:
             project_dir = Path.cwd()
@@ -114,24 +114,24 @@ class Project:
         config_path = project_dir / "wara9a.yml"
         config.save_to_file(config_path)
         
-        logger.info(f"Nouveau projet créé: {config_path}")
+        logger.info(f"New project created: {config_path}")
         return cls(config_path=config_path)
     
     def collect_data(self, force_refresh: bool = False) -> ProjectData:
         """
-        Collecte les données depuis toutes les sources configurées.
+        Collects data from all configured sources.
         
         Args:
-            force_refresh: Force la collecte même si le cache est valide
+            force_refresh: Force collection even if cache is valid
         
         Returns:
-            Données du projet normalisées
+            Normalized project data
         """
-        logger.info("Début de la collecte de données")
+        logger.info("Starting data collection")
         
         # TODO: Implement cache
         if not force_refresh and self._project_data:
-            logger.info("Utilisation des données en cache")
+            logger.info("Using cached data")
             return self._project_data
         
         all_data = []
@@ -182,14 +182,14 @@ class Project:
                           templates: Optional[List[str]] = None,
                           output_dir: Optional[Path] = None) -> List[Path]:
         """
-        Génère tous les documents selon la configuration.
+        Generates all documents according to configuration.
         
         Args:
-            templates: Liste des templates à utiliser (défaut: tous les activés)
-            output_dir: Dossier de sortie (défaut: config.output.directory)
+            templates: List of templates to use (default: all enabled)
+            output_dir: Output directory (default: config.output.directory)
         
         Returns:
-            Liste des fichiers générés
+            List of generated files
         """
         if not self._project_data:
             self.collect_data()
@@ -209,7 +209,7 @@ class Project:
         generated_files = []
         templates_to_use = templates or [t.name for t in self.config.get_enabled_templates()]
         
-        logger.info(f"Génération de {len(templates_to_use)} documents")
+        logger.info(f"Generating {len(templates_to_use)} documents")
         
         for template_name in templates_to_use:
             # Trouver la configuration du template
@@ -219,15 +219,15 @@ class Project:
             )
             
             if not template_config:
-                logger.warning(f"Template non trouvé dans la configuration: {template_name}")
+                logger.warning(f"Template not found in configuration: {template_name}")
                 continue
             
             if not template_config.enabled:
-                logger.info(f"Template désactivé: {template_name}")
+                logger.info(f"Template disabled: {template_name}")
                 continue
             
             try:
-                logger.info(f"Génération du template: {template_name}")
+                logger.info(f"Generating template: {template_name}")
                 
                 # Prepare context for template
                 context = self._prepare_template_context(template_config)
@@ -247,20 +247,20 @@ class Project:
                     if generator:
                         final_path = generator.generate(content, output_file, context)
                         generated_files.append(final_path)
-                        logger.info(f"Document généré: {final_path}")
+                        logger.info(f"Document generated: {final_path}")
                     else:
-                        logger.error(f"Générateur non trouvé pour le format: {format_name}")
+                        logger.error(f"Generator not found for format: {format_name}")
                 
             except Exception as e:
-                logger.error(f"Erreur lors de la génération du template {template_name}: {e}")
+                logger.error(f"Error generating template {template_name}: {e}")
                 if not self.config.get("continue_on_error", True):
                     raise
         
-        logger.info(f"Génération terminée: {len(generated_files)} fichiers créés")
+        logger.info(f"Generation completed: {len(generated_files)} files created")
         return generated_files
     
     def _prepare_template_context(self, template_config) -> Dict[str, Any]:
-        """Prépare le contexte de variables pour un template."""
+        """Prepares variable context for a template."""
         context = {
             # Project data
             "project": self.config.project.model_dump(),
@@ -289,7 +289,7 @@ class Project:
         Valide la configuration actuelle.
         
         Returns:
-            Liste des erreurs trouvées (vide si tout est OK)
+            List of errors found (empty if all OK)
         """
         errors = []
         
@@ -302,12 +302,12 @@ class Project:
         for template in self.config.templates:
             if not self.template_engine.has_template(template.name):
                 if not template.template_file:
-                    errors.append(f"Template non trouvé: {template.name}")
+                    errors.append(f"Template not found: {template.name}")
         
         # Validate generators
         for format_name in self.config.output.formats:
             if format_name not in self.generators:
-                errors.append(f"Générateur non disponible: {format_name}")
+                errors.append(f"Generator not available: {format_name}")
         
         return errors
     
@@ -315,6 +315,6 @@ class Project:
         """Recharge la configuration depuis le fichier."""
         if self.config_path:
             self.config = Wara9aConfig.load_from_file(self.config_path)
-            logger.info("Configuration rechargée")
+            logger.info("Configuration reloaded")
         else:
-            logger.warning("Impossible de recharger: configuration non liée à un fichier")
+            logger.warning("Cannot reload: configuration not linked to file")

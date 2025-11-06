@@ -1,8 +1,8 @@
 """
 Interface de base pour les connecteurs Wara9a.
 
-Définit le contrat que tous les connecteurs doivent respecter
-pour assurer l'interopérabilité et la consistance des données.
+Defines the contract that all connectors must respect
+to ensure interoperability and data consistency.
 """
 
 from abc import ABC, abstractmethod
@@ -16,8 +16,8 @@ class ConnectorBase(ABC):
     """
     Classe de base abstraite pour tous les connecteurs Wara9a.
     
-    Chaque connecteur doit hériter de cette classe et implémenter
-    les méthodes abstraites pour collecter et normaliser les données.
+    Each connector must inherit from this class and implement
+    abstract methods to collect and normalize data.
     """
     
     @property
@@ -65,16 +65,16 @@ class ConnectorBase(ABC):
     @abstractmethod
     def collect(self, config: SourceConfig) -> ProjectData:
         """
-        Collecte les données depuis la source configurée.
+        Collects data from configured source.
         
         Args:
             config: Configuration de la source
             
         Returns:
-            Données du projet normalisées
+            Normalized project data
             
         Raises:
-            ConnectionError: Si impossible de se connecter à la source
+            ConnectionError: If unable to connect to source
             ValueError: Si la configuration est invalide
             Exception: Pour toute autre erreur
         """
@@ -82,13 +82,13 @@ class ConnectorBase(ABC):
     
     def test_connection(self, config: SourceConfig) -> bool:
         """
-        Teste la connexion à la source sans collecter de données.
+        Tests connection to source without collecting data.
         
         Args:
             config: Configuration de la source
             
         Returns:
-            True si la connexion réussit, False sinon
+            True if connection succeeds, False otherwise
         """
         try:
             # By default, try limited collection
@@ -106,9 +106,9 @@ class ConnectorBase(ABC):
     
     def get_config_schema(self) -> Dict[str, Any]:
         """
-        Retourne le schéma de configuration JSON Schema pour ce connecteur.
+        Returns JSON Schema configuration schema for this connector.
         
-        Utile pour la validation et la génération d'interfaces utilisateur.
+        Useful for validation and UI generation.
         """
         schema = {
             "type": "object",
@@ -124,7 +124,7 @@ class ConnectorBase(ABC):
                 "enabled": {
                     "type": "boolean",
                     "default": True,
-                    "description": "Source activée"
+                    "description": "Source enabled"
                 }
             },
             "required": ["type"] + self.required_config_fields
